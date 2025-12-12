@@ -1,0 +1,77 @@
+{
+  "name": "coding-guidelines-agent",
+  "displayName": "Coding Guidelines Agent",
+  "description": "VS Code Chat Agent with MCP server for coding guidelines",
+  "version": "1.0.0",
+  "publisher": "coding-guidelines",
+  "engines": {
+    "vscode": "^1.100.0"
+  },
+  "categories": [
+    "Chat"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "chatParticipants": [
+      {
+        "id": "coding-guidelines.agent",
+        "name": "guidelines",
+        "fullName": "Coding Guidelines",
+        "description": "Guideline-aware agent: search/validate/summarize, generate components/features, bootstrap React 19+TS+StyleX projects, run lint/typecheck/test",
+        "isSticky": true,
+        "commands": [
+          {
+            "name": "search",
+            "description": "Search for specific guidelines or patterns"
+          },
+          {
+            "name": "validate",
+            "description": "Validate code against guidelines"
+          },
+          {
+            "name": "summary",
+            "description": "Get summary of a guideline document"
+          }
+        ]
+      }
+    ]
+  },
+  "scripts": {
+    "build:mcp": "node scripts/build-mcp.mjs",
+    "build:extension": "tsc -p src/extension/tsconfig.json",
+    "build": "npm run build:mcp && npm run build:extension",
+    "watch": "tsc -p src/extension/tsconfig.json --watch",
+    "vscode:prepublish": "npm run build",
+    "package": "vsce package --allow-missing-repository"
+  },
+  "keywords": [
+    "chat",
+    "coding-guidelines",
+    "agent",
+    "mcp"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.24.3"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.1",
+    "@types/vscode": "^1.107.0",
+    "@vscode/vsce": "^3.7.1",
+    "esbuild": "^0.27.1",
+    "eslint": "^9.39.1",
+    "prettier": "^3.7.4",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.18.2"
+  },
+  "files": [
+    "out",
+    "build",
+    "guidelines",
+    "LICENSE"
+  ]
+}
