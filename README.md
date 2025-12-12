@@ -14,6 +14,8 @@ An MCP (Model Context Protocol) server that provides your coding guidelines and 
 - **Tools**:
   - `search_guidelines`: Search across all guideline documents
   - `validate_code_pattern`: Validate code against established patterns
+  - `get_guideline_summary`: Summarize a guideline document/section
+  - `generate_code`: Generate standard-compliant code artifacts
 
 ## Installation
 
@@ -56,7 +58,24 @@ The server works with any MCP-compatible AI assistant. Configuration depends on 
 - **Claude Desktop**: See [Claude MCP docs](https://modelcontextprotocol.io/quickstart/user)
 - **Other MCP clients**: Provide the command `node /absolute/path/to/build/index.js`
 
-**Note:** GitHub Copilot does not currently support MCP servers.
+**Note:** GitHub Copilot does not directly connect to MCP servers. This repo includes a VS Code Chat participant extension that can act as a bridge.
+
+## VS Code Copilot Chat Agent (Bridge)
+
+This repository also contains a VS Code extension that registers chat participants:
+- `@guidelines` — Coding Guidelines
+- `@guardian` — Enterprise Code Guardian
+
+Both participants use the bundled MCP server/tools to search/summarize/validate guidelines and generate code.
+
+### Run locally
+
+```bash
+npm install
+npm run build
+```
+
+Then launch the extension in VS Code (Extension Development Host) and open Copilot Chat.
 
 ## Development
 

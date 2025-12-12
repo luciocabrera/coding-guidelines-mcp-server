@@ -25,7 +25,15 @@ export async function activate(context: vscode.ExtensionContext) {
 
   agent.iconPath = new vscode.ThemeIcon("gear");
 
+  const guardian = vscode.chat.createChatParticipant(
+    "coding-guidelines.guardian",
+    handleChatRequest
+  );
+
+  guardian.iconPath = new vscode.ThemeIcon("shield");
+
   context.subscriptions.push(agent);
+  context.subscriptions.push(guardian);
   context.subscriptions.push({
     dispose: () => mcpClient.disconnect(),
   });

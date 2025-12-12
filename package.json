@@ -36,6 +36,27 @@
             "description": "Get summary of a guideline document"
           }
         ]
+      },
+      {
+        "id": "coding-guidelines.guardian",
+        "name": "guardian",
+        "fullName": "Enterprise Code Guardian",
+        "description": "Standards enforcer: uses MCP tools to search/summarize/validate guidelines and generate standard-compliant code",
+        "isSticky": true,
+        "commands": [
+          {
+            "name": "search",
+            "description": "Search for specific guidelines or patterns"
+          },
+          {
+            "name": "validate",
+            "description": "Validate code against guidelines"
+          },
+          {
+            "name": "summary",
+            "description": "Get summary of a guideline document"
+          }
+        ]
       }
     ]
   },
