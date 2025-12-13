@@ -3,7 +3,7 @@
  * Quick reference / pointer to the workspace ESLint configuration
  */
 
-import type { Guideline } from '../types.js';
+import type { Guideline } from '@/types';
 
 export const eslintRulesResource: Guideline = {
   uri: 'guidelines://eslint-rules',

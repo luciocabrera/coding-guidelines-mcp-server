@@ -3,5 +3,5 @@
  * Exports all utility functions
  */
 
-export * from "./file-reader.js";
-export * from "./search.js";
+export * from '../tools/search-guidelines/utils/extract-context.util.js';
+export * from './file-reader.js';

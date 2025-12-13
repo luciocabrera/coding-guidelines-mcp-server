@@ -1,4 +1,4 @@
-import { type GenerateCodeArgs } from './generate-code.types.js';
+import type { GenerateCodeArgs } from './generate-code.types.js';
 import { buildBootstrapPlan, buildComponentScaffold, buildFeatureScaffold } from './utils';
 
 export function generateCode(args: GenerateCodeArgs) {

@@ -1,8 +1,8 @@
 import { SHARED_GUIDELINES_NOTES } from '../generate-code.const';
-import { type GenerateCodeResult } from '../generate-code.types';
+import type { GenerateCodeResult } from '../generate-code.types';
 
-import { buildComponentScaffold } from './build-component-scaffold';
-import { toPascalCase } from './to-pascal-case';
+import { buildComponentScaffold } from './build-component-scaffold.util';
+import { toPascalCase } from './to-pascal-case.util';
 
 export function buildFeatureScaffold(name: string, requirements?: string): GenerateCodeResult {
   const featureName = toPascalCase(name || 'Feature');

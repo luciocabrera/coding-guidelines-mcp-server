@@ -1,7 +1,7 @@
 import { SHARED_GUIDELINES_NOTES } from '../generate-code.const';
-import { type GenerateCodeResult, type GeneratedFile } from '../generate-code.types';
+import type { GenerateCodeResult, GeneratedFile } from '../generate-code.types';
 
-import { toPascalCase } from './to-pascal-case';
+import { toPascalCase } from './to-pascal-case.util';
 
 export function buildComponentScaffold(
   name: string,

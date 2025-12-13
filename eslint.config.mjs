@@ -2,6 +2,7 @@ import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import eslintConfigPrettier from 'eslint-config-prettier/flat';
 import simpleImportSort from 'eslint-plugin-simple-import-sort';
+import localRules from './eslint-local-rules/index.js';
 
 export default tseslint.config(
   eslint.configs.recommended,
@@ -16,6 +17,7 @@ export default tseslint.config(
     },
     plugins: {
       'simple-import-sort': simpleImportSort,
+      'local-rules': localRules,
     },
 
     rules: {
@@ -25,7 +27,7 @@ export default tseslint.config(
       // -----------------------------------------------------------
 
       // --- TYPE IMPORT ENFORCEMENT ---
-      // Enforce using 'import type' for type-only imports
+      // Enforce using 'import type' for type-only imports (top-level, not inline)
       '@typescript-eslint/consistent-type-imports': [
         'error',
         {
@@ -37,8 +39,7 @@ export default tseslint.config(
       '@typescript-eslint/consistent-type-exports': [
         'error',
         {
-          // Use the expected property name from the error message
-          fixMixedExportsWithInlineTypeSpecifier: true,
+          fixMixedExportsWithInlineTypeSpecifier: false,
         },
       ],
       '@typescript-eslint/no-unused-vars': [
@@ -53,6 +54,9 @@ export default tseslint.config(
       '@typescript-eslint/no-floating-promises': 'error',
       '@typescript-eslint/no-misused-promises': 'error',
       'no-console': ['warn', { allow: ['error'] }],
+      // --- CUSTOM LOCAL RULES ---
+      'local-rules/no-inline-type-imports': 'error',
+      'local-rules/merge-duplicate-imports': 'error',
       // --- IMPORT SORTING CONFIGURATION ---
       'simple-import-sort/exports': 'error',
       'simple-import-sort/imports': [
@@ -87,6 +91,7 @@ export default tseslint.config(
       'build/',
       'out/',
       'node_modules/',
+      'eslint-local-rules/',
       '*.js',
       '*.mjs',
       'guidelines/playwright_config.ts',

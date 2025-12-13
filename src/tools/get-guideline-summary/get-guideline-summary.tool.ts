@@ -3,9 +3,9 @@
  * Retrieves summaries or specific sections from guideline documents
  */
 
-import { GUIDELINES } from '../../resources';
-import type { Guideline } from '../../types';
-import { readGuidelineFile } from '../../utils';
+import { GUIDELINES } from '@/resources';
+import type { Guideline } from '@/types';
+import { readGuidelineFile } from '@/utils';
 
 export async function getGuidelineSummary(
   guidelinesPath: string,

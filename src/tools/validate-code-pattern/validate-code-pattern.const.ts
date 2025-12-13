@@ -1,9 +1,24 @@
-/**
- * Validation Rules Configuration
- * Defines validation patterns and rules for different code categories
- */
+import type { ValidationCategory, ValidationRule } from './validate-code-pattern.types';
 
-import type { ValidationCategory,ValidationRule } from '../types.js';
+export const VALIDATE_CODE_PATTERN_TOOL = {
+  name: 'validate_code_pattern',
+  description: 'Check if a code pattern follows the established guidelines',
+  inputSchema: {
+    type: 'object' as const,
+    properties: {
+      code: {
+        type: 'string',
+        description: 'Code snippet to validate',
+      },
+      category: {
+        type: 'string',
+        description: 'Category to validate against',
+        enum: ['component', 'styling', 'types', 'testing', 'file-structure'] as const,
+      },
+    },
+    required: ['code', 'category'],
+  },
+};
 
 export const VALIDATION_RULES: Record<ValidationCategory, ValidationRule> = {
   component: {

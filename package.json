@@ -108,7 +108,9 @@
     "build": "npm run build:mcp && npm run build:extension",
     "watch": "tsc -p src/extension/tsconfig.json --watch",
     "vscode:prepublish": "npm run build",
-    "package": "vsce package --allow-missing-repository"
+    "package": "vsce package --allow-missing-repository",
+    "lint": "npx eslint . --fix && echo \"✅ All linting passed!\"",
+    "typecheck": "tsc --noEmit && echo \"✅ Type checking passed!\""
   },
   "keywords": [
     "chat",

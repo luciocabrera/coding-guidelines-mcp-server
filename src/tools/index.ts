@@ -6,24 +6,20 @@
 import type { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
 
-import type { SearchGuidelinesArgs, ValidateCodePatternArgs } from '../types.js';
-
-import { GENERATE_CODE_TOOL } from './generate-code/generate-code.const.js';
-import { type GenerateCodeArgs, type GenerateCodeResult } from './generate-code/generate-code.types.js';
-import { SEARCH_GUIDELINES_TOOL } from './search-guidelines/search-guidelines.const.js';
-import { searchGuidelines } from './search-guidelines/search-guidelines.tool.js';
+import { GENERATE_CODE_TOOL } from './generate-code/generate-code.const';
+import type { GenerateCodeArgs, GenerateCodeResult } from './generate-code/generate-code.types';
+import type { SearchGuidelinesArgs } from './search-guidelines/search-guidelines.types.js';
+import { VALIDATE_CODE_PATTERN_TOOL } from './validate-code-pattern/validate-code-pattern.const.js';
+import type { ValidateCodePatternArgs } from './validate-code-pattern/validate-code-pattern.types';
 import { generateCode } from './generate-code';
-import { getGuidelineSummary } from './get-guideline-summary';
-import { GET_GUIDELINE_SUMMARY_TOOL } from './get-guideline-summary';
-import {
-  handleValidateCodePattern,
-  validateCodePatternTool,
-} from './validate-code-pattern.tool.js';
+import { GET_GUIDELINE_SUMMARY_TOOL, getGuidelineSummary } from './get-guideline-summary';
+import { SEARCH_GUIDELINES_TOOL, searchGuidelines } from './search-guidelines';
+import { validateCodePattern } from './validate-code-pattern';
 
 // Export all tools for easy access
 export const ALL_TOOLS = [
   SEARCH_GUIDELINES_TOOL,
-  validateCodePatternTool,
+  VALIDATE_CODE_PATTERN_TOOL,
   GET_GUIDELINE_SUMMARY_TOOL,
   GENERATE_CODE_TOOL,
 ];
@@ -48,7 +44,7 @@ export function registerToolHandlers(server: Server, guidelinesPath: string): vo
         return await searchGuidelines(guidelinesPath, args as SearchGuidelinesArgs);
 
       case 'validate_code_pattern':
-        return handleValidateCodePattern(args as ValidateCodePatternArgs);
+        return validateCodePattern(args as ValidateCodePatternArgs);
 
       case 'get_guideline_summary':
         return await getGuidelineSummary(

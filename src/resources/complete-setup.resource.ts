@@ -3,12 +3,12 @@
  * Complete project setup and configuration guide
  */
 
-import type { Guideline } from "../types.js";
+import type { Guideline } from '@/types';
 
 export const completeSetupResource: Guideline = {
-  uri: "guidelines://complete-setup",
-  name: "Complete Setup Guide",
-  description: "Complete project setup guide",
-  mimeType: "text/markdown",
-  file: "complete_setup_guide.md",
+  uri: 'guidelines://complete-setup',
+  name: 'Complete Setup Guide',
+  description: 'Complete project setup guide',
+  mimeType: 'text/markdown',
+  file: 'complete_setup_guide.md',
 };

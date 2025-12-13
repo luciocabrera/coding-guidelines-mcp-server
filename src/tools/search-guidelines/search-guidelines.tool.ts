@@ -3,9 +3,10 @@
  * Searches for specific patterns across all guideline documents
  */
 
-import { GUIDELINES } from '../../resources/index.js';
-import type { SearchGuidelinesArgs, SearchResult } from '../../types.js';
-import { formatSearchResults, searchInGuideline } from '../../utils/index.js';
+import { GUIDELINES } from '@/resources';
+
+import type { SearchGuidelinesArgs, SearchResult } from './search-guidelines.types';
+import { formatSearchResults, searchInGuideline } from './utils';
 
 export async function searchGuidelines(guidelinesPath: string, args: SearchGuidelinesArgs) {
   const { query } = args;

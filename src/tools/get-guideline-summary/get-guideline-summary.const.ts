@@ -3,8 +3,8 @@
  * Retrieves summaries or specific sections from guideline documents
  */
 
-import { GUIDELINES } from '../../resources';
-import type { Guideline } from '../../types';
+import { GUIDELINES } from '@/resources';
+import type { Guideline } from '@/types';
 
 export const GET_GUIDELINE_SUMMARY_TOOL = {
   name: 'get_guideline_summary',

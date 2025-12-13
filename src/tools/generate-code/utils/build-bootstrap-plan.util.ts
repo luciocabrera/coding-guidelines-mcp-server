@@ -1,5 +1,5 @@
 import { SHARED_GUIDELINES_NOTES } from '../generate-code.const';
-import { type GenerateCodeResult, type GeneratedFile } from '../generate-code.types';
+import type { GenerateCodeResult, GeneratedFile } from '../generate-code.types';
 
 export function buildBootstrapPlan(requirements?: string): GenerateCodeResult {
   const steps = `Bootstrap plan (React 19 + Vite + TypeScript + StyleX + ESLint + Prettier + Husky + Testing):

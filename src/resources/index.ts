@@ -9,7 +9,7 @@ import {
   ReadResourceRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
 
-import type { Guideline } from '../types.js';
+import type { Guideline } from '../types/common.types.js';
 import { readGuidelineFile } from '../utils/index.js';
 
 import { codingGuidelinesResource } from './coding-guidelines.resource.js';
