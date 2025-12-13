@@ -1,6 +1,6 @@
 This document consolidates all the previously discussed architectural, structural, and tooling standards into a single, cohesive **Markdown Coding Guideline** ready for team use.
 
------
+---
 
 # 🚀 Engineering Standards Document (React/StyleX/TS)
 
@@ -16,31 +16,31 @@ Features are grouped by domain logic. Logic, UI, and Data are clearly separated.
 
 ```markdown
 src/
-      services/
-        authApi.service.ts      # Data Layer: API calls, external dependencies
-        authLoader.ts           # React Router Loader/Action logic
-      components/
-        LoginButton/            # Component Bundle Directory
-          ├── LoginButton.tsx
-          ├── LoginButton.styles.ts
-          ├── LoginButton.types.ts
-          └── index.ts          # Barrel file (Public API)
-      hooks/
-        useAuthStatus.hook.ts   # Logic Layer: State, effects, derived data
+services/
+authApi.service.ts # Data Layer: API calls, external dependencies
+authLoader.ts # React Router Loader/Action logic
+components/
+LoginButton/ # Component Bundle Directory
+├── LoginButton.tsx
+├── LoginButton.styles.ts
+├── LoginButton.types.ts
+└── index.ts # Barrel file (Public API)
+hooks/
+useAuthStatus.hook.ts # Logic Layer: State, effects, derived data
 ```
 
 ### 1.2 Strict File Suffixes
 
 Every file's purpose must be immediately clear from its name.
 
-| Type | Pattern | Example |
-| :--- | :--- | :--- |
-| **Hook** | `*.hook.ts` | `useUserList.hook.ts` |
-| **Utility** | `*.util.ts` | `currencyFormatter.util.ts` |
-| **Service** | `*.service.ts` | `userApi.service.ts` |
-| **Style** | `*.styles.ts` | `Card.styles.ts` |
-| **Type** | `*.types.ts` | `Card.types.ts` |
-| **Index** | `index.ts` | Barrel file for export |
+| Type        | Pattern        | Example                     |
+| :---------- | :------------- | :-------------------------- |
+| **Hook**    | `*.hook.ts`    | `useUserList.hook.ts`       |
+| **Utility** | `*.util.ts`    | `currencyFormatter.util.ts` |
+| **Service** | `*.service.ts` | `userApi.service.ts`        |
+| **Style**   | `*.styles.ts`  | `Card.styles.ts`            |
+| **Type**    | `*.types.ts`   | `Card.types.ts`             |
+| **Index**   | `index.ts`     | Barrel file for export      |
 
 ### 1.3 Barrel Files (`index.ts`)
 
@@ -60,9 +60,12 @@ Always use `type` aliases over `interface` for consistency, flexibility (unions/
 
 ```typescript
 // ✅ DO
-export type User = { readonly id: string; readonly name: string; }
+export type User = { readonly id: string; readonly name: string };
 // ❌ DON'T
-export interface User { id: string; name: string; }
+export interface User {
+  id: string;
+  name: string;
+}
 ```
 
 ### 2.2 Strict Typing & Immutability
@@ -92,14 +95,15 @@ All styling must be done using StyleX definitions located in `*.styles.ts` files
 
 ### 3.2 Forbidden Styling Practices
 
-| Practice | Rationale |
-| :--- | :--- |
-| **Inline Styles** (`style={{...}}`) | Runtime performance hit; violates separation of concerns. |
+| Practice                                                     | Rationale                                                                        |
+| :----------------------------------------------------------- | :------------------------------------------------------------------------------- |
+| **Inline Styles** (`style={...}`)                            | Runtime performance hit; violates separation of concerns.                        |
 | **Anonymous Functions in JSX** (`onClick={() => handler()}`) | Creates new function reference on every render; hurts performance and stability. |
 
 ```typescript
 // ❌ AVOID
 return <button onClick={() => handleClick(id)} style={{ color: 'red' }} />;
+return <button onClick={() => handleClick(id)} style={dynamicStyleObject} />;
 
 // ✅ REQUIRED
 const handleClick = () => submit(id);
@@ -119,7 +123,7 @@ Never mutate state or data structures. Use functional methods (`.map`, `.filter`
 ```typescript
 // ❌ MUTATION
 const newUser = user;
-newUser.role = 'admin'; 
+newUser.role = 'admin';
 
 // ✅ IMMUTABILITY
 const newUser = { ...user, role: 'admin' };
@@ -129,8 +133,8 @@ const newUser = { ...user, role: 'admin' };
 
 All event handlers (internal or passed as props) must follow strict naming:
 
-  * **Props:** Start with `on` (e.g., `onSave`, `onClick`).
-  * **Internal:** Start with `handle` (e.g., `handleSubmit`, `handleCloseModal`).
+- **Props:** Start with `on` (e.g., `onSave`, `onClick`).
+- **Internal:** Start with `handle` (e.g., `handleSubmit`, `handleCloseModal`).
 
 ## 5\. Automation and Sorting Standards
 
@@ -161,12 +165,12 @@ Imports must be grouped and sorted alphabetically within the group.
 
 All keys and members must be sorted alphabetically.
 
-| Item | Sorting Rule | Example |
-| :--- | :--- | :--- |
-| **Type/Prop Members** | Strict A-Z. (`id` is allowed first exception). | `id, age, email, name` |
-| **Component Props (Destructuring)** | Strict A-Z. | `({ id, isActive, name, onSave })` |
-| **JSX Props** | Strict A-Z. | `<Button isDisabled={...} label={...} onClick={...} />` |
-| **Object Keys** | Strict A-Z. | `{ theme: 'dark', version: '1.0.0' }` |
+| Item                                | Sorting Rule                                   | Example                                                 |
+| :---------------------------------- | :--------------------------------------------- | :------------------------------------------------------ |
+| **Type/Prop Members**               | Strict A-Z. (`id` is allowed first exception). | `id, age, email, name`                                  |
+| **Component Props (Destructuring)** | Strict A-Z.                                    | `({ id, isActive, name, onSave })`                      |
+| **JSX Props**                       | Strict A-Z.                                    | `<Button isDisabled={...} label={...} onClick={...} />` |
+| **Object Keys**                     | Strict A-Z.                                    | `{ theme: 'dark', version: '1.0.0' }`                   |
 
 ## 6\. Data Layer (React Router 7)
 
@@ -176,7 +180,7 @@ Data fetching inside components using `useEffect` is strictly forbidden. All ser
 
 ### 6.2 Naming and Usage
 
-  * **Read Operations:** Use `loader` functions in the route module. Data is consumed in the component using the typed `useLoaderData<typeof loader>()`.
-  * **Write Operations:** Use `action` functions for mutations (POST, PUT, DELETE). UI uses `useFetcher` or `useSubmit` to trigger actions.
+- **Read Operations:** Use `loader` functions in the route module. Data is consumed in the component using the typed `useLoaderData<typeof loader>()`.
+- **Write Operations:** Use `action` functions for mutations (POST, PUT, DELETE). UI uses `useFetcher` or `useSubmit` to trigger actions.
 
 This document is the source of truth for all code contribution.

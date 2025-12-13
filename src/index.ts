@@ -2,8 +2,9 @@
 
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { join, dirname } from "path";
+import { dirname,join } from "path";
 import { fileURLToPath } from "url";
+
 import { registerResourceHandlers } from "./resources/index.js";
 import { registerToolHandlers } from "./tools/index.js";
 

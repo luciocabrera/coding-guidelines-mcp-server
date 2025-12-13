@@ -57,6 +57,48 @@
             "description": "Get summary of a guideline document"
           }
         ]
+      },
+      {
+        "id": "coding-guidelines.coding",
+        "name": "coding",
+        "fullName": "Coding Guidelines (Alias)",
+        "description": "Alias for @guidelines/@guardian",
+        "isSticky": true,
+        "commands": [
+          {
+            "name": "search",
+            "description": "Search for specific guidelines or patterns"
+          },
+          {
+            "name": "validate",
+            "description": "Validate code against guidelines"
+          },
+          {
+            "name": "summary",
+            "description": "Get summary of a guideline document"
+          }
+        ]
+      },
+      {
+        "id": "coding-guidelines.standards",
+        "name": "standards",
+        "fullName": "Coding Standards (Alias)",
+        "description": "Alias for @guardian (standards-focused persona)",
+        "isSticky": true,
+        "commands": [
+          {
+            "name": "search",
+            "description": "Search for specific guidelines or patterns"
+          },
+          {
+            "name": "validate",
+            "description": "Validate code against guidelines"
+          },
+          {
+            "name": "summary",
+            "description": "Get summary of a guideline document"
+          }
+        ]
       }
     ]
   },
@@ -84,10 +126,12 @@
     "@types/vscode": "^1.107.0",
     "@vscode/vsce": "^3.7.1",
     "esbuild": "^0.27.1",
-    "eslint": "^9.39.1",
+    "eslint": "^9.39.2",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
     "prettier": "^3.7.4",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.18.2"
+    "typescript-eslint": "^8.49.0"
   },
   "files": [
     "out",

@@ -3,18 +3,18 @@
  * Defines validation patterns and rules for different code categories
  */
 
-import type { ValidationRule, ValidationCategory } from "../types.js";
+import type { ValidationCategory,ValidationRule } from '../types.js';
 
 export const VALIDATION_RULES: Record<ValidationCategory, ValidationRule> = {
   component: {
     patterns: [/const\s+\w+\s*=\s*\(/],
-    antiPatterns: [/React\.FC/, /function\s+\w+\(/],
-    advice: "Components should use const arrow functions, not React.FC or function declarations",
+    antiPatterns: [/React\.FC/, /function\s+\w+\(/, /\bforwardRef\s*\(/, /React\.forwardRef\s*\(/],
+    advice: 'Components should use const arrow functions, not React.FC or function declarations',
   },
   styling: {
     patterns: [/\.styles\.ts/, /stylex\./],
-    antiPatterns: [/style={{/, /className=/],
-    advice: "Use StyleX for all styling. Avoid inline styles and className props",
+    antiPatterns: [/\bstyle\s*=\s*{/, /className=/],
+    advice: "Use StyleX for all styling. Avoid the JSX 'style' prop and avoid className props",
   },
   types: {
     patterns: [/type\s+\w+\s*=/, /readonly/],
@@ -26,11 +26,11 @@ export const VALIDATION_RULES: Record<ValidationCategory, ValidationRule> = {
     patterns: [/describe\(/, /it\(/, /expect\(/],
     antiPatterns: [/\.only\(/, /\.skip\(/],
     advice:
-      "Use proper test structure with describe/it blocks. Avoid .only() or .skip() in committed code",
+      'Use proper test structure with describe/it blocks. Avoid .only() or .skip() in committed code',
   },
-  "file-structure": {
+  'file-structure': {
     patterns: [/\.tsx?$/, /\.test\.tsx?$/],
     antiPatterns: [/\.jsx$/, /\.js$/],
-    advice: "Use TypeScript files (.ts/.tsx). Group related files in feature folders",
+    advice: 'Use TypeScript files (.ts/.tsx). Group related files in feature folders',
   },
 };

@@ -4,6 +4,21 @@
     "plaintext": true,
     "markdown": true
   },
+  "github.copilot.advanced": {
+    "agentSettings": {
+      "guardian": {
+        "enabled": true,
+        "instructionsFile": ".github/copilot-agent-instructions.md",
+        "workspaceContext": [
+          ".github/copilot-instructions.md",
+          "guidelines/coding-guidelines.md",
+          "guidelines/eslint-rules.md",
+          ".prettierrc.json",
+          "eslint.config.mjs"
+        ]
+      }
+    }
+  },
   "github.copilot.chat.localeOverride": "en",
   "editor.formatOnSave": true,
   "eslint.useFlatConfig": true

@@ -63,17 +63,17 @@ src/
 
 Every file must have a clear, predictable suffix indicating its purpose.
 
-| Type | Pattern | Example | Purpose |
-|------|---------|---------|---------|
-| **Component** | `*.tsx` | `UserCard.tsx` | React component |
-| **Hook** | `*.hook.ts` | `useUserData.hook.ts` | Custom React hook |
-| **Utility** | `*.util.ts` | `dateFormatter.util.ts` | Pure utility function |
-| **Service** | `*.service.ts` | `userApi.service.ts` | External service integration |
-| **Style** | `*.styles.ts` | `UserCard.styles.ts` | StyleX definitions |
-| **Type** | `*.types.ts` | `UserCard.types.ts` | TypeScript type definitions |
-| **Test** | `*.test.tsx` | `UserCard.test.tsx` | Unit/integration tests |
-| **Constant** | `*.const.ts` | `validation.const.ts` | Immutable constants |
-| **Schema** | `*.schema.ts` | `user.schema.ts` | Validation schemas (Zod, Yup) |
+| Type          | Pattern        | Example                 | Purpose                       |
+| ------------- | -------------- | ----------------------- | ----------------------------- |
+| **Component** | `*.tsx`        | `UserCard.tsx`          | React component               |
+| **Hook**      | `*.hook.ts`    | `useUserData.hook.ts`   | Custom React hook             |
+| **Utility**   | `*.util.ts`    | `dateFormatter.util.ts` | Pure utility function         |
+| **Service**   | `*.service.ts` | `userApi.service.ts`    | External service integration  |
+| **Style**     | `*.styles.ts`  | `UserCard.styles.ts`    | StyleX definitions            |
+| **Type**      | `*.types.ts`   | `UserCard.types.ts`     | TypeScript type definitions   |
+| **Test**      | `*.test.tsx`   | `UserCard.test.tsx`     | Unit/integration tests        |
+| **Constant**  | `*.const.ts`   | `validation.const.ts`   | Immutable constants           |
+| **Schema**    | `*.schema.ts`  | `user.schema.ts`        | Validation schemas (Zod, Yup) |
 
 ### 1.3 Barrel Files (Public APIs)
 
@@ -91,6 +91,7 @@ export * from './components/LoginButton';
 ```
 
 **Benefits:**
+
 - Encapsulation: Internal refactoring doesn't break consumers
 - Discoverability: Clear public API surface
 - Tree-shaking: Better dead code elimination
@@ -140,6 +141,7 @@ export interface User {
 ```
 
 **Rationale:**
+
 - Types support unions, intersections, and mapped types
 - Prevents accidental declaration merging
 - More predictable behavior in complex scenarios
@@ -167,6 +169,7 @@ export type Config = {
 ### 2.4 Type Safety Patterns
 
 #### No `any`
+
 ```typescript
 // ❌ Forbidden
 const processData = (data: any) => { ... };
@@ -180,6 +183,7 @@ const processData = (data: unknown) => {
 ```
 
 #### Discriminated Unions for State
+
 ```typescript
 // ✅ Correct: Type-safe state machine
 export type FetchState<T> =
@@ -190,6 +194,7 @@ export type FetchState<T> =
 ```
 
 #### Branded Types for Safety
+
 ```typescript
 // ✅ Prevent mixing up IDs
 export type UserId = string & { readonly __brand: 'UserId' };
@@ -321,11 +326,11 @@ Each component should have one clear reason to exist and change.
 const UserProfile = () => {
   const [user, setUser] = useState(null);
   const [orders, setOrders] = useState([]);
-  
+
   // Fetching logic
   useEffect(() => { fetchUser(); }, []);
   useEffect(() => { fetchOrders(); }, []);
-  
+
   // Rendering user info AND orders
   return <div>...</div>;
 };
@@ -333,7 +338,7 @@ const UserProfile = () => {
 // ✅ Good: Separated concerns
 const UserProfile = () => {
   const user = useLoaderData<typeof loader>();
-  
+
   return (
     <div>
       <UserInfo user={user} />
@@ -376,12 +381,12 @@ type CardProps = {
 
 ### 3.3 Props Naming Conventions
 
-| Type | Pattern | Example |
-|------|---------|---------|
-| **Event Handlers (Props)** | `on[Event]` | `onClick`, `onSave`, `onClose` |
-| **Internal Handlers** | `handle[Event]` | `handleClick`, `handleSubmit` |
-| **Boolean Props** | `is/has/should[State]` | `isLoading`, `hasError`, `shouldValidate` |
-| **Render Props** | `render[Thing]` | `renderHeader`, `renderEmpty` |
+| Type                       | Pattern                | Example                                   |
+| -------------------------- | ---------------------- | ----------------------------------------- |
+| **Event Handlers (Props)** | `on[Event]`            | `onClick`, `onSave`, `onClose`            |
+| **Internal Handlers**      | `handle[Event]`        | `handleClick`, `handleSubmit`             |
+| **Boolean Props**          | `is/has/should[State]` | `isLoading`, `hasError`, `shouldValidate` |
+| **Render Props**           | `render[Thing]`        | `renderHeader`, `renderEmpty`             |
 
 ```typescript
 type TableProps = {
@@ -396,7 +401,7 @@ export const Table = ({ data, isLoading, onRowClick, renderEmpty }: TableProps) 
     // Internal logic
     onRowClick(user);
   };
-  
+
   // ...
 };
 ```
@@ -463,16 +468,17 @@ export const Button = ({ disabled, variant }: ButtonProps) => (
 
 ### 4.2 Forbidden Styling Practices
 
-| Practice | Why Forbidden | Penalty |
-|----------|---------------|---------|
-| **Inline styles** `style={{...}}` | Runtime cost, no type safety, unoptimized | Blocking review |
+| Practice                                     | Why Forbidden                                 | Penalty         |
+| -------------------------------------------- | --------------------------------------------- | --------------- |
+| **Inline styles** `style={...}`              | Runtime cost, no type safety, unoptimized     | Blocking review |
 | **Anonymous functions** `onClick={() => {}}` | New reference each render, breaks memoization | Blocking review |
-| **CSS Modules** | Inconsistent with StyleX architecture | Blocking review |
-| **Styled Components** | Runtime overhead, conflicts with StyleX | Blocking review |
+| **CSS Modules**                              | Inconsistent with StyleX architecture         | Blocking review |
+| **Styled Components**                        | Runtime overhead, conflicts with StyleX       | Blocking review |
 
 ```typescript
 // ❌ Forbidden Patterns
 <div style={{ color: 'red' }}>Text</div>
+<div style={dynamicStyleObject}>Text</div>
 <button onClick={() => handleClick(id)}>Click</button>
 
 // ✅ Required Patterns
@@ -491,11 +497,11 @@ export const styles = stylex.create({
     flexDirection: 'column',
     gap: '16px',
   },
-  
+
   // State variants
   disabled: { opacity: 0.5 },
   focused: { outline: '2px solid blue' },
-  
+
   // Size variants
   large: { fontSize: '18px', padding: '16px' },
   small: { fontSize: '14px', padding: '8px' },
@@ -597,12 +603,12 @@ for (let i = 0; i < users.length; i++) {
 }
 
 // ✅ Functional
-const activeUsers = users.filter(user => user.isActive);
+const activeUsers = users.filter((user) => user.isActive);
 
 // ✅ Chaining
 const activeUserNames = users
-  .filter(user => user.isActive)
-  .map(user => user.name)
+  .filter((user) => user.isActive)
+  .map((user) => user.name)
   .sort();
 ```
 
@@ -640,11 +646,11 @@ const UserList = ({ users }: { users: ReadonlyArray<User> }) => {
 // ❌ Forbidden: Component-level fetching
 const UserProfile = () => {
   const [user, setUser] = useState(null);
-  
+
   useEffect(() => {
     fetch('/api/user').then(res => res.json()).then(setUser);
   }, []);
-  
+
   return <div>{user?.name}</div>;
 };
 
@@ -669,7 +675,7 @@ const UserProfile = () => {
 export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   const userId = params.userId;
   if (!userId) throw new Response('Not Found', { status: 404 });
-  
+
   const user = await userApi.fetchUser(userId);
   return json({ user });
 };
@@ -688,21 +694,21 @@ const UserProfile = () => {
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
   const updates = Object.fromEntries(formData);
-  
+
   const validatedData = userSchema.parse(updates);
   await userApi.updateUser(validatedData);
-  
+
   return redirect('/users');
 };
 
 // Component usage
 const EditUser = () => {
   const fetcher = useFetcher();
-  
+
   const handleSubmit = (data: UserUpdate) => {
     fetcher.submit(data, { method: 'POST' });
   };
-  
+
   return <form onSubmit={handleSubmit}>...</form>;
 };
 ```
@@ -776,7 +782,7 @@ type UserProfileProps = {
 const UserProfile = ({ isAuthenticated }: UserProfileProps) => {
   // This is valid with use()!
   const theme = isAuthenticated ? use(ThemeContext) : defaultTheme;
-  
+
   return <div>...</div>;
 };
 
@@ -800,7 +806,7 @@ const UserData = ({ userPromise }: UserDataProps) => {
 // Parent component with Suspense boundary
 const UserPage = () => {
   const userPromise = fetchUser({ userId: '123' });
-  
+
   return (
     <Suspense fallback={<LoadingSpinner />}>
       <UserData userPromise={userPromise} />
@@ -834,7 +840,7 @@ const createUserAction = async (
 ): Promise<CreateUserFormState> => {
   const email = formData.get('email') as string;
   const name = formData.get('name') as string;
-  
+
   try {
     await createUser({ email, name });
     return { success: true };
@@ -848,16 +854,16 @@ export const CreateUserForm = ({ onSuccess }: CreateUserFormProps) => {
     createUserAction,
     { success: false }
   );
-  
+
   return (
     <form action={formAction}>
       <input name="email" type="email" required />
       <input name="name" type="text" required />
-      
+
       <button type="submit" disabled={isPending}>
         {isPending ? 'Creating...' : 'Create User'}
       </button>
-      
+
       {state.error && <div>{state.error}</div>}
       {state.success && <div>User created successfully!</div>}
     </form>
@@ -874,12 +880,12 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
   const email = formData.get('email') as string;
   const name = formData.get('name') as string;
-  
+
   const result = userSchema.safeParse({ email, name });
   if (!result.success) {
     return json({ errors: result.error.flatten() }, { status: 400 });
   }
-  
+
   await createUser({ email: result.data.email, name: result.data.name });
   return redirect('/users');
 };
@@ -890,7 +896,7 @@ import { Form } from 'react-router-dom';
 export const CreateUserForm = () => {
   const navigation = useNavigation();
   const isPending = navigation.state === 'submitting';
-  
+
   return (
     <Form method="post">
       <input name="email" type="email" required />
@@ -913,7 +919,7 @@ import { useFormStatus } from 'react-dom';
 
 const SubmitButton = () => {
   const { pending, data } = useFormStatus();
-  
+
   return (
     <button type="submit" disabled={pending}>
       {pending ? 'Submitting...' : 'Submit'}
@@ -955,7 +961,7 @@ const TodoList = ({ todos }: TodoListProps) => {
     todos,
     (state, newTodo: Todo) => [...state, newTodo]
   );
-  
+
   const handleAddTodo = async (formData: FormData) => {
     const text = formData.get('text') as string;
     const newTodo: Todo = {
@@ -963,21 +969,21 @@ const TodoList = ({ todos }: TodoListProps) => {
       text,
       completed: false,
     };
-    
+
     // Immediately show optimistic update
     addOptimisticTodo(newTodo);
-    
+
     // Actual server call
     await createTodo({ text });
   };
-  
+
   return (
     <div>
       <form action={handleAddTodo}>
         <input name="text" required />
         <button type="submit">Add Todo</button>
       </form>
-      
+
       <ul>
         {optimisticTodos.map(todo => (
           <li key={todo.id}>{todo.text}</li>
@@ -1002,10 +1008,10 @@ type UserListPageProps = {
 // Async Server Component
 export default async function UserListPage({ searchParams }: UserListPageProps) {
   const page = Number(searchParams.page) || 1;
-  
+
   // Direct async/await in component (Server Component only!)
   const users = await fetchUsers({ page, limit: 20 });
-  
+
   return (
     <div>
       <h1>Users</h1>
@@ -1027,7 +1033,7 @@ type UserListProps = {
 export const UserList = ({ users }: UserListProps) => {
   const [filter, setFilter] = useState('');
   // Client-side interactivity
-  
+
   return <div>...</div>;
 };
 ```
@@ -1059,17 +1065,17 @@ const SearchResults = ({ onSearch }: SearchResultsProps) => {
   const [isPending, startTransition] = useTransition();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
-  
+
   const handleSearch = (newQuery: string) => {
     setQuery(newQuery); // Urgent: update input immediately
-    
+
     startTransition(async () => {
       // Non-urgent: search can be interrupted
       const data = await onSearch(newQuery);
       setResults(data);
     });
   };
-  
+
   return (
     <div>
       <input
@@ -1077,9 +1083,9 @@ const SearchResults = ({ onSearch }: SearchResultsProps) => {
         onChange={e => handleSearch(e.target.value)}
         placeholder="Search..."
       />
-      
+
       {isPending && <div>Searching...</div>}
-      
+
       <ul>
         {results.map(result => (
           <li key={result.id}>{result.title}</li>
@@ -1114,7 +1120,7 @@ All route components must be wrapped in error boundaries.
 // ErrorBoundary.tsx
 export const ErrorBoundary = () => {
   const error = useRouteError();
-  
+
   if (isRouteErrorResponse(error)) {
     return (
       <div>
@@ -1123,7 +1129,7 @@ export const ErrorBoundary = () => {
       </div>
     );
   }
-  
+
   return <div>Unexpected Error</div>;
 };
 ```
@@ -1148,12 +1154,12 @@ export type UserInput = z.infer<typeof userSchema>;
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
   const raw = Object.fromEntries(formData);
-  
+
   const result = userSchema.safeParse(raw);
   if (!result.success) {
     return json({ errors: result.error.flatten() }, { status: 400 });
   }
-  
+
   await saveUser({ user: result.data });
   return redirect('/success');
 };
@@ -1168,12 +1174,7 @@ type IsUserArgs = {
 };
 
 export const isUser = ({ value }: IsUserArgs): value is User => {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    'id' in value &&
-    'email' in value
-  );
+  return typeof value === 'object' && value !== null && 'id' in value && 'email' in value;
 };
 
 // Usage
@@ -1185,7 +1186,7 @@ const processData = ({ data }: ProcessDataArgs) => {
   if (!isUser({ value: data })) {
     throw new Error('Invalid user data');
   }
-  
+
   // data is now typed as User
   console.log(data.email);
 };
@@ -1215,21 +1216,21 @@ describe('UserCard', () => {
       name: 'John Doe',
       email: 'john@example.com',
     };
-    
+
     render(<UserCard user={user} />);
-    
+
     expect(screen.getByText('John Doe')).toBeInTheDocument();
     expect(screen.getByText('john@example.com')).toBeInTheDocument();
   });
-  
+
   it('calls onClick when clicked', async () => {
     const handleClick = vi.fn();
     const user = { id: '1', name: 'John', email: 'john@example.com' };
-    
+
     render(<UserCard user={user} onClick={handleClick} />);
-    
+
     await userEvent.click(screen.getByRole('button'));
-    
+
     expect(handleClick).toHaveBeenCalledWith(user);
   });
 });
@@ -1263,9 +1264,12 @@ const sortedUsers = useMemo(() => {
 }, [users]);
 
 // ✅ useCallback for stable function references
-const handleSave = useCallback((data: FormData) => {
-  onSave(data);
-}, [onSave]);
+const handleSave = useCallback(
+  (data: FormData) => {
+    onSave(data);
+  },
+  [onSave],
+);
 
 // ❌ Don't over-optimize simple operations
 const total = useMemo(() => a + b, [a, b]); // Unnecessary
@@ -1399,15 +1403,15 @@ const config = {
 
 All exported functions, types, and components must have JSDoc comments.
 
-```typescript
+````typescript
 /**
  * Formats a number as currency with proper locale handling.
- * 
+ *
  * @param args - Currency formatting parameters
  * @param args.amount - The numeric amount to format
  * @param args.currency - ISO 4217 currency code (e.g., 'USD', 'EUR')
  * @returns Formatted currency string
- * 
+ *
  * @example
  * ```ts
  * formatCurrency({ amount: 1234.56, currency: 'USD' }) // "$1,234.56"
@@ -1424,7 +1428,7 @@ export const formatCurrency = ({ amount, currency }: FormatCurrencyArgs): string
     currency,
   }).format(amount);
 };
-```
+````
 
 ### 11.2 README Files
 
@@ -1439,27 +1443,31 @@ Each feature must have a README explaining:
 # Authentication Feature
 
 ## Overview
+
 Handles user authentication, session management, and authorization.
 
 ## Components
+
 - `LoginButton` - Triggers authentication flow
 - `AuthGuard` - Protects routes requiring authentication
 
 ## Hooks
+
 - `useAuth()` - Returns current authentication state
 
 ## Usage
+
 \`\`\`tsx
 import { LoginButton, useAuth } from '@/features/auth';
 
 const App = () => {
-  const { user, isAuthenticated } = useAuth();
-  
-  if (!isAuthenticated) {
-    return <LoginButton />;
-  }
-  
-  return <div>Welcome, {user.name}</div>;
+const { user, isAuthenticated } = useAuth();
+
+if (!isAuthenticated) {
+return <LoginButton />;
+}
+
+return <div>Welcome, {user.name}</div>;
 };
 \`\`\`
 ```
@@ -1488,11 +1496,11 @@ const SafeHTML = ({ html }: { readonly html: string }) => {
 // ✅ Protected route pattern
 const ProtectedRoute = ({ children }: { readonly children: React.ReactNode }) => {
   const { isAuthenticated } = useAuth();
-  
+
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
-  
+
   return <>{children}</>;
 };
 ```
@@ -1539,11 +1547,7 @@ Use Husky and lint-staged to enforce standards:
 ```json
 {
   "lint-staged": {
-    "*.{ts,tsx}": [
-      "eslint --fix",
-      "prettier --write",
-      "vitest related --run"
-    ]
+    "*.{ts,tsx}": ["eslint --fix", "prettier --write", "vitest related --run"]
   }
 }
 ```
@@ -1551,6 +1555,7 @@ Use Husky and lint-staged to enforce standards:
 ### CI/CD Pipeline
 
 All pull requests must pass:
+
 1. Linting (`npm run lint`)
 2. Type checking (`npm run type-check`)
 3. Tests (`npm run test`)
@@ -1561,6 +1566,7 @@ All pull requests must pass:
 ## Exceptions
 
 Exceptions to these standards require:
+
 1. Written justification
 2. Approval from tech lead
 3. Documentation in code comments

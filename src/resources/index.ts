@@ -3,22 +3,25 @@
  * Exports all resources and the main handler registration
  */
 
+import type { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import {
   ListResourcesRequestSchema,
   ReadResourceRequestSchema,
-} from "@modelcontextprotocol/sdk/types.js";
-import type { Server } from "@modelcontextprotocol/sdk/server/index.js";
-import type { Guideline } from "../types.js";
-import { readGuidelineFile } from "../utils/index.js";
+} from '@modelcontextprotocol/sdk/types.js';
 
-import { codingGuidelinesResource } from "./coding-guidelines.resource.js";
-import { enterpriseStandardsResource } from "./enterprise-standards.resource.js";
-import { testingGuideResource } from "./testing-guide.resource.js";
-import { e2eTestingResource } from "./e2e-testing.resource.js";
-import { completeSetupResource } from "./complete-setup.resource.js";
+import type { Guideline } from '../types.js';
+import { readGuidelineFile } from '../utils/index.js';
+
+import { codingGuidelinesResource } from './coding-guidelines.resource.js';
+import { completeSetupResource } from './complete-setup.resource.js';
+import { e2eTestingResource } from './e2e-testing.resource.js';
+import { enterpriseStandardsResource } from './enterprise-standards.resource.js';
+import { eslintRulesResource } from './eslint-rules.resource.js';
+import { testingGuideResource } from './testing-guide.resource.js';
 
 // Export all guidelines for easy access
 export const GUIDELINES: Guideline[] = [
+  eslintRulesResource,
   codingGuidelinesResource,
   enterpriseStandardsResource,
   testingGuideResource,

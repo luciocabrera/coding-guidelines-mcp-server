@@ -5,6 +5,7 @@
 
 import { readFile } from "fs/promises";
 import { join } from "path";
+
 import type { Guideline, SearchMatch, SearchResult } from "../types.js";
 
 /**

@@ -3,8 +3,8 @@
  * Validates code snippets against established coding guidelines
  */
 
-import type { ValidateCodePatternArgs } from "../types.js";
 import { VALIDATION_RULES } from "../config/validation-rules.js";
+import type { ValidateCodePatternArgs } from "../types.js";
 
 export const validateCodePatternTool = {
   name: "validate_code_pattern",

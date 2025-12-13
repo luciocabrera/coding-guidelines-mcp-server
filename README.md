@@ -63,10 +63,27 @@ The server works with any MCP-compatible AI assistant. Configuration depends on 
 ## VS Code Copilot Chat Agent (Bridge)
 
 This repository also contains a VS Code extension that registers chat participants:
+
 - `@guidelines` — Coding Guidelines
 - `@guardian` — Enterprise Code Guardian
 
 Both participants use the bundled MCP server/tools to search/summarize/validate guidelines and generate code.
+
+### How Copilot connects to the MCP server
+
+See [.copilot/examples.md](.copilot/examples.md) for the end-to-end connection chain (agent settings → instructions → `guidelines://...` resources → tool calls → stdio transport).
+
+To debug MCP traffic in Copilot, enable:
+
+```jsonc
+{
+  "github.copilot.advanced": {
+    "debug": {
+      "mcp": true,
+    },
+  },
+}
+```
 
 ### Run locally
 
@@ -76,6 +93,11 @@ npm run build
 ```
 
 Then launch the extension in VS Code (Extension Development Host) and open Copilot Chat.
+
+If you don't see `@guardian` in the chat input, it usually means the extension is not running:
+
+- **Dev Host**: open this repo in VS Code, run `npm run build`, then press `F5` (Run Extension) and use Copilot Chat in the **Extension Development Host** window.
+- **Packaged**: run `npm run package`, then install the generated `.vsix` via “Extensions: Install from VSIX…”.
 
 ## Development
 
@@ -95,8 +117,9 @@ npx @modelcontextprotocol/inspector node build/index.js
 
 ## Available Resources
 
+- `guidelines://eslint-rules` - ESLint rules quick reference
 - `guidelines://coding-guidelines` - Main coding guidelines
-- `guidelines://enterprise-standards` - Enterprise coding standards  
+- `guidelines://enterprise-standards` - Enterprise coding standards
 - `guidelines://testing-guide` - Testing standards
 - `guidelines://e2e-testing` - E2E testing guide
 - `guidelines://complete-setup` - Complete setup guide
@@ -104,15 +127,19 @@ npx @modelcontextprotocol/inspector node build/index.js
 ## Available Tools
 
 ### search_guidelines
+
 Search for specific coding guidelines or patterns across all documents.
 
 **Input:**
+
 - `query` (string): Search query (e.g., 'StyleX', 'testing', 'TypeScript')
 
 ### validate_code_pattern
+
 Check if a code pattern follows the established guidelines.
 
 **Input:**
+
 - `code` (string): Code snippet to validate
 - `category` (string): One of 'component', 'styling', 'types', 'testing', 'file-structure'
 
