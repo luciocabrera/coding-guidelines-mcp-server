@@ -109,8 +109,22 @@
     "watch": "tsc -p src/extension/tsconfig.json --watch",
     "vscode:prepublish": "npm run build",
     "package": "vsce package --allow-missing-repository",
-    "lint": "npx eslint . --fix && echo \"✅ All linting passed!\"",
-    "typecheck": "tsc --noEmit && echo \"✅ Type checking passed!\""
+    "lint": "eslint . --fix",
+    "lint:check": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "tsc --noEmit",
+    "validate": "npm run lint:check && npm run format:check && npm run typecheck",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,mjs}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ]
   },
   "keywords": [
     "chat",
@@ -132,6 +146,8 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-perfectionist": "^4.15.1",
     "eslint-plugin-simple-import-sort": "^12.1.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
     "prettier": "^3.7.4",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.49.0"

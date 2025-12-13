@@ -11,6 +11,7 @@ This project uses `eslint-plugin-perfectionist` to automatically sort code eleme
 ## Auto-Fix
 
 All sorting rules are auto-fixable. Run:
+
 ```bash
 npm run lint
 ```
@@ -27,6 +28,7 @@ This will automatically sort all objects, types, and classes in your code.
 ## Configuration
 
 Sorting rules are configured in `eslint.config.mjs`:
+
 - `perfectionist/sort-objects` - Sorts object properties
 - `perfectionist/sort-interfaces` - Sorts interface members
 - `perfectionist/sort-object-types` - Sorts type members
@@ -37,6 +39,7 @@ All use natural alphabetical sorting (case-insensitive).
 ## Examples
 
 ### Before
+
 ```typescript
 export type User = {
   name: string;
@@ -53,6 +56,7 @@ const config = {
 ```
 
 ### After (auto-fixed)
+
 ```typescript
 export type User = {
   age: number;
