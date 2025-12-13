@@ -18,8 +18,8 @@ export async function getGuidelineSummary(
     return {
       content: [
         {
-          type: 'text',
           text: `Guideline not found: ${guidelineName}. Available: ${GUIDELINES.map((g: Guideline) => g.name).join(', ')}`,
+          type: 'text',
         },
       ],
     };
@@ -38,8 +38,8 @@ export async function getGuidelineSummary(
       return {
         content: [
           {
-            type: 'text',
             text: `Section "${section}" not found in ${guidelineName}`,
+            type: 'text',
           },
         ],
       };
@@ -58,7 +58,7 @@ export async function getGuidelineSummary(
       .join('\n');
 
     return {
-      content: [{ type: 'text', text: sectionContent }],
+      content: [{ text: sectionContent, type: 'text' }],
     };
   }
 
@@ -67,8 +67,8 @@ export async function getGuidelineSummary(
   return {
     content: [
       {
-        type: 'text',
         text: `**${guideline.name}**\n\n${summary}\n\n... (use section parameter to get specific sections)`,
+        type: 'text',
       },
     ],
   };

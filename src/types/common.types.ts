@@ -3,9 +3,9 @@
  */
 
 export type Guideline = {
-  uri: string;
-  name: string;
   description: string;
-  mimeType: string;
   file: string;
+  mimeType: string;
+  name: string;
+  uri: string;
 };

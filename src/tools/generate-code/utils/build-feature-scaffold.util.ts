@@ -57,8 +57,8 @@ export const fetch${featureName} = async () => {
 
   const extras = requirements ? `\nRequirements: ${requirements}\n` : '';
   return {
-    text: `${SHARED_GUIDELINES_NOTES}\n${extras}\n${base}\n${componentSnippet.text}\n\n${hookSnippet}\n\n${serviceSnippet}`,
-    files: undefined,
     commands: ['npm run format', 'npm run lint', 'npm run typecheck', 'npm test -- --coverage'],
+    files: undefined,
+    text: `${SHARED_GUIDELINES_NOTES}\n${extras}\n${base}\n${componentSnippet.text}\n\n${hookSnippet}\n\n${serviceSnippet}`,
   };
 }

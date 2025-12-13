@@ -72,7 +72,7 @@ async function handleChatRequest(
         return { metadata: { command: 'clarify' } };
       }
 
-      const { task, name } = inferGenerationIntent(query);
+      const { name, task } = inferGenerationIntent(query);
       if (!query || !query.trim() || name === 'Component') {
         stream.markdown(
           '🔎 I can generate code, but I need a bit more detail. Please share the target artifact (component/feature/page/app), required states, data shape, interactions, visual direction (palette/spacing/typography), a11y needs (aria labels, focus behavior), and any performance constraints.',
@@ -82,11 +82,11 @@ async function handleChatRequest(
 
       stream.markdown(`🛠️ Generating ${task} "${name}"...\n\n`);
       const result = await mcpClient.generateCode({
-        task,
+        includeRef: /\bref\b/i.test(query || ''),
+        includeTests: true,
         name,
         requirements: query,
-        includeTests: true,
-        includeRef: /\bref\b/i.test(query || ''),
+        task,
       });
 
       stream.markdown(result.text + '\n\n');
@@ -183,7 +183,7 @@ function shouldGenerate(query?: string): boolean {
   );
 }
 
-function inferGenerationIntent(query?: string): { task: string; name: string } {
+function inferGenerationIntent(query?: string): { name: string; task: string; } {
   const normalized = query || '';
   const stripped = normalized.replace(/@(guidelines|guardian|coding|standards)\b/gi, '').trim();
   const hasFeature = /\bfeature\b/i.test(stripped);
@@ -201,7 +201,7 @@ function inferGenerationIntent(query?: string): { task: string; name: string } {
   const rawName = nameMatch?.[1]?.trim() || stripped.trim() || 'Component';
   const name = normalizeArtifactName(rawName, stripped);
 
-  return { task, name };
+  return { name, task };
 }
 
 function normalizeArtifactName(raw: string, query: string): string {
@@ -346,7 +346,7 @@ function getHelpMessage(): string {
 
 async function writeGeneratedFiles(
   workspaceRoot: string,
-  files: Array<{ path: string; content: string }>,
+  files: Array<{ content: string; path: string; }>,
   stream: vscode.ChatResponseStream,
 ) {
   for (const file of files) {
@@ -419,7 +419,7 @@ async function runPostCommands(cwd: string, commands: string[], stream: vscode.C
 
     try {
       stream.markdown(`▶️ ${cmd}\n`);
-      const { stdout, stderr } = await exec(cmd, { cwd });
+      const { stderr, stdout } = await exec(cmd, { cwd });
       if (stdout) {
         stream.markdown('```\n' + stdout.trim() + '\n```\n');
       }
@@ -435,7 +435,7 @@ async function runPostCommands(cwd: string, commands: string[], stream: vscode.C
         await ensureScriptsForCommands(cwd, [cmd], stream);
         stream.markdown(`↻ Retrying ${cmd} after adding missing script...\n`);
         try {
-          const { stdout, stderr } = await exec(cmd, { cwd });
+          const { stderr, stdout } = await exec(cmd, { cwd });
           if (stdout) {
             stream.markdown('```\n' + stdout.trim() + '\n```\n');
           }

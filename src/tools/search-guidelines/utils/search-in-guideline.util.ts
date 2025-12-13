@@ -17,7 +17,7 @@ export async function searchInGuideline(
     const content = await readFile(join(guidelinesPath, guideline.file), 'utf-8');
     const lines = content.split('\n');
     const matches: SearchMatch[] = lines
-      .map((line, index) => ({ line, index }))
+      .map((line, index) => ({ index, line }))
       .filter(({ line }) => line.toLowerCase().includes(query.toLowerCase()));
 
     if (matches.length > 0) {

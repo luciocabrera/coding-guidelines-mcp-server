@@ -37,7 +37,7 @@ export function registerToolHandlers(server: Server, guidelinesPath: string): vo
 
   // Handle tool calls
   server.setRequestHandler(CallToolRequestSchema, async (request) => {
-    const { name, arguments: args } = request.params;
+    const { arguments: args, name } = request.params;
 
     switch (name) {
       case 'search_guidelines':
@@ -56,9 +56,9 @@ export function registerToolHandlers(server: Server, guidelinesPath: string): vo
         const result = generateCode(args as GenerateCodeArgs) as GenerateCodeResult;
         // Wrap into MCP response content while keeping files/commands in the envelope
         return {
-          content: [{ type: 'text', text: result.text }],
-          files: result.files,
           commands: result.commands,
+          content: [{ text: result.text, type: 'text' }],
+          files: result.files,
         };
       }
 

@@ -2,7 +2,7 @@ import type { GenerateCodeArgs } from './generate-code.types.js';
 import { buildBootstrapPlan, buildComponentScaffold, buildFeatureScaffold } from './utils';
 
 export function generateCode(args: GenerateCodeArgs) {
-  const { task, name, requirements, includeTests } = args;
+  const { includeTests, name, requirements, task } = args;
 
   switch (task) {
     case 'component':
@@ -14,6 +14,6 @@ export function generateCode(args: GenerateCodeArgs) {
     case 'hook':
       return buildFeatureScaffold(`${name}Hook`, requirements);
     default:
-      return { content: [{ type: 'text', text: 'Unknown task' }] };
+      return { content: [{ text: 'Unknown task', type: 'text' }] };
   }
 }

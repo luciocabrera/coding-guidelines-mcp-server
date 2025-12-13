@@ -187,16 +187,16 @@ describe("${componentName}", () => {
 `;
 
   const files: GeneratedFile[] = [
-    { path: `src/components/${componentName}/${componentName}.tsx`, content: componentFile },
-    { path: `src/components/${componentName}/${componentName}.types.ts`, content: typesFile },
-    { path: `src/components/${componentName}/${componentName}.styles.ts`, content: stylesFile },
-    { path: `src/components/${componentName}/index.ts`, content: indexFile },
+    { content: componentFile, path: `src/components/${componentName}/${componentName}.tsx` },
+    { content: typesFile, path: `src/components/${componentName}/${componentName}.types.ts` },
+    { content: stylesFile, path: `src/components/${componentName}/${componentName}.styles.ts` },
+    { content: indexFile, path: `src/components/${componentName}/index.ts` },
   ];
 
   if (includeTests) {
     files.push({
-      path: `src/components/${componentName}/${componentName}.test.tsx`,
       content: testFile,
+      path: `src/components/${componentName}/${componentName}.test.tsx`,
     });
   }
 
@@ -204,10 +204,10 @@ describe("${componentName}", () => {
   const postSteps = `\nAfter generation, run: npm run format && npm run lint && npm run typecheck && npm test -- --coverage`;
 
   return {
+    commands: ['npm run format', 'npm run lint', 'npm run typecheck', 'npm test -- --coverage'],
+    files,
     text: `${SHARED_GUIDELINES_NOTES}\n${extra}\nGenerated files (write these to disk):\n${files
       .map((f) => `- ${f.path}`)
       .join('\n')}${postSteps}`,
-    files,
-    commands: ['npm run format', 'npm run lint', 'npm run typecheck', 'npm test -- --coverage'],
   };
 }

@@ -36,11 +36,11 @@ export function registerResourceHandlers(server: Server, guidelinesPath: string)
   // List available resources
   server.setRequestHandler(ListResourcesRequestSchema, () => {
     return {
-      resources: GUIDELINES.map(({ uri, name, description, mimeType }) => ({
-        uri,
-        name,
+      resources: GUIDELINES.map(({ description, mimeType, name, uri }) => ({
         description,
         mimeType,
+        name,
+        uri,
       })),
     };
   });
@@ -58,9 +58,9 @@ export function registerResourceHandlers(server: Server, guidelinesPath: string)
     return {
       contents: [
         {
-          uri: request.params.uri,
           mimeType: guideline.mimeType,
           text: content,
+          uri: request.params.uri,
         },
       ],
     };

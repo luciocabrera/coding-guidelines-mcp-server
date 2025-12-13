@@ -5,8 +5,8 @@ export type SearchGuidelinesArgs = {
 };
 
 export type SearchMatch = {
-  line: string;
   index: number;
+  line: string;
 };
 
 export type SearchResult = {

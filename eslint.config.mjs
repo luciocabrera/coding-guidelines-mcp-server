@@ -1,7 +1,9 @@
 import eslint from '@eslint/js';
-import tseslint from 'typescript-eslint';
 import eslintConfigPrettier from 'eslint-config-prettier/flat';
+import perfectionist from 'eslint-plugin-perfectionist';
 import simpleImportSort from 'eslint-plugin-simple-import-sort';
+import tseslint from 'typescript-eslint';
+
 import localRules from './eslint-local-rules/index.js';
 
 export default tseslint.config(
@@ -16,6 +18,7 @@ export default tseslint.config(
       },
     },
     plugins: {
+      perfectionist,
       'simple-import-sort': simpleImportSort,
       'local-rules': localRules,
     },
@@ -57,6 +60,35 @@ export default tseslint.config(
       // --- CUSTOM LOCAL RULES ---
       'local-rules/no-inline-type-imports': 'error',
       'local-rules/merge-duplicate-imports': 'error',
+      // --- PERFECTIONIST SORTING RULES ---
+      'perfectionist/sort-objects': [
+        'error',
+        {
+          type: 'natural',
+          order: 'asc',
+        },
+      ],
+      'perfectionist/sort-interfaces': [
+        'error',
+        {
+          type: 'natural',
+          order: 'asc',
+        },
+      ],
+      'perfectionist/sort-object-types': [
+        'error',
+        {
+          type: 'natural',
+          order: 'asc',
+        },
+      ],
+      'perfectionist/sort-classes': [
+        'error',
+        {
+          type: 'natural',
+          order: 'asc',
+        },
+      ],
       // --- IMPORT SORTING CONFIGURATION ---
       'simple-import-sort/exports': 'error',
       'simple-import-sort/imports': [

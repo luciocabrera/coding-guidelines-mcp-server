@@ -6,9 +6,9 @@
 import type { Guideline } from '@/types';
 
 export const eslintRulesResource: Guideline = {
-  uri: 'guidelines://eslint-rules',
-  name: 'ESLint Rules Quick Reference',
   description: 'Quick reference for the repo ESLint rules (see eslint.config.mjs)',
-  mimeType: 'text/markdown',
   file: 'eslint-rules.md',
+  mimeType: 'text/markdown',
+  name: 'ESLint Rules Quick Reference',
+  uri: 'guidelines://eslint-rules',
 };

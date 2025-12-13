@@ -15,7 +15,6 @@ export function buildBootstrapPlan(requirements?: string): GenerateCodeResult {
 
   const files: GeneratedFile[] = [
     {
-      path: 'tsconfig.json',
       content: `{
   "compilerOptions": {
     "target": "ES2020",
@@ -35,9 +34,9 @@ export function buildBootstrapPlan(requirements?: string): GenerateCodeResult {
   "references": [{ "path": "./tsconfig.node.json" }]
 }
 `,
+      path: 'tsconfig.json',
     },
     {
-      path: 'tsconfig.node.json',
       content: `{
   "compilerOptions": {
     "composite": true,
@@ -49,9 +48,9 @@ export function buildBootstrapPlan(requirements?: string): GenerateCodeResult {
   "include": ["vite.config.ts", "package.json"]
 }
 `,
+      path: 'tsconfig.node.json',
     },
     {
-      path: 'tsconfig.vitest.json',
       content: `{
   "compilerOptions": {
     "composite": true,
@@ -63,9 +62,9 @@ export function buildBootstrapPlan(requirements?: string): GenerateCodeResult {
   "include": ["vitest.config.ts", "package.json"]
 }
 `,
+      path: 'tsconfig.vitest.json',
     },
     {
-      path: 'vite.config.ts',
       content: `import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
@@ -73,9 +72,9 @@ export default defineConfig({
   plugins: [react({ babel: { plugins: ["@stylexjs/babel-plugin"] } })],
 });
 `,
+      path: 'vite.config.ts',
     },
     {
-      path: 'vitest.config.ts',
       content: `import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 
@@ -91,9 +90,9 @@ export default defineConfig({
   },
 });
 `,
+      path: 'vitest.config.ts',
     },
     {
-      path: 'eslint.config.js',
       content: `import js from "@eslint/js";
 import tseslint from "typescript-eslint";
 import react from "eslint-plugin-react";
@@ -145,9 +144,9 @@ export default tseslint.config(
   }
 );
 `,
+      path: 'eslint.config.js',
     },
     {
-      path: '.prettierrc.json',
       content: `{
   "singleQuote": true,
   "trailingComma": "all",
@@ -155,9 +154,9 @@ export default tseslint.config(
   "semi": true
 }
 `,
+      path: '.prettierrc.json',
     },
     {
-      path: '.gitignore',
       content: `node_modules
 .DS_Store
 dist
@@ -167,9 +166,9 @@ coverage
 .idea
 .vscode
 `,
+      path: '.gitignore',
     },
     {
-      path: '.husky/_/husky.sh',
       content: `#!/bin/sh
 if [ -z "$husky_skip_init" ]; then
   husky_skip_init=1
@@ -177,25 +176,25 @@ if [ -z "$husky_skip_init" ]; then
   . "$(dirname "$0")/husky.sh"
 fi
 `,
+      path: '.husky/_/husky.sh',
     },
     {
-      path: '.husky/pre-commit',
       content: `#!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
 npm run lint && npm run typecheck && npm run format
 `,
+      path: '.husky/pre-commit',
     },
     {
-      path: '.husky/pre-push',
       content: `#!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
 npm run build && npm test -- --coverage
 `,
+      path: '.husky/pre-push',
     },
     {
-      path: 'src/main.tsx',
       content: `import React from "react";
 import ReactDOM from "react-dom/client";
 import { App } from "./App";
@@ -206,21 +205,21 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
   </React.StrictMode>
 );
 `,
+      path: 'src/main.tsx',
     },
     {
-      path: 'src/App.types.ts',
       content: `export type Todo = { readonly id: string; readonly title: string; readonly done: boolean };
 export type TodoInputProps = { readonly onAdd: (title: string) => void; readonly disabled?: boolean };
 export type TodoItemProps = { readonly todo: Todo; readonly onToggle: (id: string) => void; readonly onRemove: (id: string) => void };
 `,
+      path: 'src/App.types.ts',
     },
     {
-      path: 'src/setupTests.ts',
       content: `import "@testing-library/jest-dom";
 `,
+      path: 'src/setupTests.ts',
     },
     {
-      path: 'src/App.styles.ts',
       content: `import * as stylex from "@stylexjs/stylex";
 
 export const styles = stylex.create({
@@ -313,9 +312,9 @@ export const styles = stylex.create({
   },
 });
 `,
+      path: 'src/App.styles.ts',
     },
     {
-      path: 'src/components/TodoInput.tsx',
       content: `import { useState } from "react";
 import * as stylex from "@stylexjs/stylex";
 import type { TodoInputProps } from "../App.types";
@@ -349,9 +348,9 @@ export const TodoInput = ({ onAdd, disabled = false }: TodoInputProps) => {
   );
 };
 `,
+      path: 'src/components/TodoInput.tsx',
     },
     {
-      path: 'src/components/TodoItem.tsx',
       content: `import * as stylex from "@stylexjs/stylex";
 import type { TodoItemProps } from "../App.types";
 import { styles } from "../App.styles";
@@ -372,9 +371,9 @@ export const TodoItem = ({ todo, onToggle, onRemove }: TodoItemProps) => (
   </div>
 );
 `,
+      path: 'src/components/TodoItem.tsx',
     },
     {
-      path: 'src/App.tsx',
       content: `import { useState } from "react";
 import * as stylex from "@stylexjs/stylex";
 import type { Todo } from "./App.types";
@@ -422,9 +421,9 @@ export const App = () => {
   );
 };
 `,
+      path: 'src/App.tsx',
     },
     {
-      path: 'src/App.test.tsx',
       content: `import { describe, expect, it } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { App } from "./App";
@@ -456,12 +455,11 @@ describe("App", () => {
   });
 });
 `,
+      path: 'src/App.test.tsx',
     },
   ];
 
   return {
-    text: `${SHARED_GUIDELINES_NOTES}\n${extra}\n${steps}`,
-    files,
     commands: [
       'npm create vite@latest . -- --template react-ts',
       'npm install @stylexjs/stylex @stylexjs/babel-plugin @stylexjs/eslint-plugin zod react-router-dom @types/react-router-dom --legacy-peer-deps',
@@ -474,5 +472,7 @@ describe("App", () => {
       'npm run typecheck',
       'npm test -- --coverage',
     ],
+    files,
+    text: `${SHARED_GUIDELINES_NOTES}\n${extra}\n${steps}`,
   };
 }

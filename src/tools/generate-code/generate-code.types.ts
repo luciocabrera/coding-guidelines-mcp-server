@@ -1,20 +1,20 @@
 export type GenerationTask = 'component' | 'feature' | 'bootstrap' | 'hook';
 
 export type GenerateCodeArgs = {
-  task: GenerationTask;
+  includeRef?: boolean;
+  includeTests?: boolean;
   name: string;
   requirements?: string;
-  includeTests?: boolean;
-  includeRef?: boolean;
+  task: GenerationTask;
 };
 
 export type GeneratedFile = {
-  path: string;
   content: string;
+  path: string;
 };
 
 export type GenerateCodeResult = {
-  text: string;
-  files?: GeneratedFile[];
   commands?: string[];
+  files?: GeneratedFile[];
+  text: string;
 };

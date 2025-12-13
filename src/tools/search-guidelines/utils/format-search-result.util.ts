@@ -17,7 +17,7 @@ export function formatSearchResults(
     formatted.push(`\n**${guideline.name}** (${guideline.file}):`);
 
     const displayMatches = matches.slice(0, maxMatchesPerFile);
-    displayMatches.forEach(({ line, index }) => {
+    displayMatches.forEach(({ index, line }) => {
       formatted.push(`Line ${index + 1}: ${line.trim()}`);
     });
 

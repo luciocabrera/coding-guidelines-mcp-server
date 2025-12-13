@@ -3,14 +3,14 @@ import { spawn } from 'child_process';
 import { join } from 'path';
 
 export class MCPClient {
-  private process: ChildProcess | null = null;
-  private requestId = 0;
-  private pendingRequests: Map<
-    number,
-    { resolve: (value: unknown) => void; reject: (reason: unknown) => void }
-  > = new Map();
   private buffer = '';
   private extensionPath: string;
+  private pendingRequests: Map<
+    number,
+    { reject: (reason: unknown) => void; resolve: (value: unknown) => void; }
+  > = new Map();
+  private process: ChildProcess | null = null;
+  private requestId = 0;
 
   constructor(extensionPath: string) {
     this.extensionPath = extensionPath;
@@ -57,6 +57,75 @@ export class MCPClient {
     });
   }
 
+  disconnect(): void {
+    if (this.process) {
+      this.process.kill();
+      this.process = null;
+    }
+  }
+
+  async generateCode(payload: {
+    includeRef?: boolean;
+    includeTests?: boolean;
+    name: string;
+    requirements?: string;
+    task: string;
+  }): Promise<{
+    commands?: string[];
+    files?: Array<{ content: string; path: string; }>;
+    text: string;
+  }> {
+    const result = (await this.sendRequest('tools/call', {
+      arguments: payload,
+      name: 'generate_code',
+    })) as {
+      commands?: string[];
+      content: Array<{ text: string }>;
+      files?: Array<{ content: string; path: string; }>;
+    };
+
+    return {
+      commands: result.commands,
+      files: result.files,
+      text: result.content?.[0]?.text || 'Could not generate code',
+    };
+  }
+
+  async getGuidelineSummary(guideline: string): Promise<string> {
+    const result = (await this.sendRequest('tools/call', {
+      arguments: { guideline },
+      name: 'get_guideline_summary',
+    })) as { content: Array<{ text: string }> };
+
+    return result.content?.[0]?.text || 'Guideline not found';
+  }
+
+  async readResource(uri: string): Promise<string> {
+    const result = (await this.sendRequest('resources/read', {
+      uri,
+    })) as { contents: Array<{ text: string }> };
+
+    return result.contents?.[0]?.text || 'Resource not found';
+  }
+
+  async searchGuidelines(query: string): Promise<string> {
+    const result = (await this.sendRequest('tools/call', {
+      arguments: { query },
+      name: 'search_guidelines',
+    })) as { content: Array<{ text: string }> };
+
+    return result.content?.[0]?.text || 'No results found';
+  }
+
+  async validateCode(code: string, category: string): Promise<string> {
+    const result = (await this.sendRequest('tools/call', {
+      arguments: { category, code },
+      name: 'validate_code_pattern',
+    })) as { content: Array<{ text: string }> };
+
+    return result.content?.[0]?.text || 'Validation failed';
+  }
+
   private processBuffer(): void {
     const lines = this.buffer.split('\n');
     this.buffer = lines.pop() || '';
@@ -64,7 +133,7 @@ export class MCPClient {
     for (const line of lines) {
       if (line.trim()) {
         try {
-          const response = JSON.parse(line) as { id?: number; error?: unknown; result?: unknown };
+          const response = JSON.parse(line) as { error?: unknown; id?: number; result?: unknown };
           if (response.id !== undefined) {
             const pending = this.pendingRequests.get(response.id);
             if (pending) {
@@ -90,14 +159,14 @@ export class MCPClient {
 
     const id = ++this.requestId;
     const request = {
-      jsonrpc: '2.0',
       id,
+      jsonrpc: '2.0',
       method,
       params,
     };
 
     return new Promise((resolve, reject) => {
-      this.pendingRequests.set(id, { resolve, reject });
+      this.pendingRequests.set(id, { reject, resolve });
       this.process!.stdin!.write(JSON.stringify(request) + '\n');
 
       // Timeout
@@ -108,74 +177,5 @@ export class MCPClient {
         }
       }, 10000);
     });
-  }
-
-  async searchGuidelines(query: string): Promise<string> {
-    const result = (await this.sendRequest('tools/call', {
-      name: 'search_guidelines',
-      arguments: { query },
-    })) as { content: Array<{ text: string }> };
-
-    return result.content?.[0]?.text || 'No results found';
-  }
-
-  async validateCode(code: string, category: string): Promise<string> {
-    const result = (await this.sendRequest('tools/call', {
-      name: 'validate_code_pattern',
-      arguments: { code, category },
-    })) as { content: Array<{ text: string }> };
-
-    return result.content?.[0]?.text || 'Validation failed';
-  }
-
-  async getGuidelineSummary(guideline: string): Promise<string> {
-    const result = (await this.sendRequest('tools/call', {
-      name: 'get_guideline_summary',
-      arguments: { guideline },
-    })) as { content: Array<{ text: string }> };
-
-    return result.content?.[0]?.text || 'Guideline not found';
-  }
-
-  async readResource(uri: string): Promise<string> {
-    const result = (await this.sendRequest('resources/read', {
-      uri,
-    })) as { contents: Array<{ text: string }> };
-
-    return result.contents?.[0]?.text || 'Resource not found';
-  }
-
-  async generateCode(payload: {
-    task: string;
-    name: string;
-    requirements?: string;
-    includeTests?: boolean;
-    includeRef?: boolean;
-  }): Promise<{
-    text: string;
-    files?: Array<{ path: string; content: string }>;
-    commands?: string[];
-  }> {
-    const result = (await this.sendRequest('tools/call', {
-      name: 'generate_code',
-      arguments: payload,
-    })) as {
-      content: Array<{ text: string }>;
-      files?: Array<{ path: string; content: string }>;
-      commands?: string[];
-    };
-
-    return {
-      text: result.content?.[0]?.text || 'Could not generate code',
-      files: result.files,
-      commands: result.commands,
-    };
-  }
-
-  disconnect(): void {
-    if (this.process) {
-      this.process.kill();
-      this.process = null;
-    }
   }
 }

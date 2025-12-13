@@ -7,15 +7,15 @@ import { VALIDATION_RULES } from './validate-code-pattern.const.js';
 import type { ValidateCodePatternArgs, ValidationRule } from './validate-code-pattern.types.js';
 
 export function validateCodePattern(args: ValidateCodePatternArgs) {
-  const { code, category } = args;
+  const { category, code } = args;
 
   const rules: ValidationRule | undefined = VALIDATION_RULES[category];
   if (!rules) {
     return {
       content: [
         {
-          type: 'text',
           text: `Unknown category: ${category}. Valid categories: ${Object.keys(VALIDATION_RULES).join(', ')}`,
+          type: 'text',
         },
       ],
     };
@@ -38,6 +38,6 @@ export function validateCodePattern(args: ValidateCodePatternArgs) {
   }
 
   return {
-    content: [{ type: 'text', text: result }],
+    content: [{ text: result, type: 'text' }],
   };
 }

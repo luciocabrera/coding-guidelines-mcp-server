@@ -6,9 +6,9 @@
 import type { Guideline } from '@/types';
 
 export const codingGuidelinesResource: Guideline = {
-  uri: 'guidelines://coding-guidelines',
-  name: 'Coding Guidelines',
   description: 'Comprehensive coding guidelines for React, TypeScript, StyleX',
-  mimeType: 'text/markdown',
   file: 'coding-guidelines.md',
+  mimeType: 'text/markdown',
+  name: 'Coding Guidelines',
+  uri: 'guidelines://coding-guidelines',
 };

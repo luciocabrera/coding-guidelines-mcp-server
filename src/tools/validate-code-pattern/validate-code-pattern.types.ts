@@ -1,12 +1,12 @@
 export type ValidationRule = {
-  patterns: RegExp[];
-  antiPatterns: RegExp[];
   advice: string;
+  antiPatterns: RegExp[];
+  patterns: RegExp[];
 };
 
 export type ValidationCategory = 'component' | 'styling' | 'types' | 'testing' | 'file-structure';
 
 export type ValidateCodePatternArgs = {
-  code: string;
   category: ValidationCategory;
+  code: string;
 };

@@ -15,30 +15,30 @@ Guidelines applied:
 `;
 
 export const GENERATE_CODE_TOOL = {
-  name: 'generate_code',
   description:
     'Generate guideline-compliant scaffolds for components, features, or project bootstrap',
   inputSchema: {
-    type: 'object' as const,
     properties: {
-      task: {
-        type: 'string',
-        enum: ['component', 'feature', 'bootstrap', 'hook'],
-        description: 'What to generate',
+      includeTests: {
+        description: 'Include a minimal test file when applicable',
+        type: 'boolean',
       },
       name: {
-        type: 'string',
         description: 'Name of the component/feature/hook',
+        type: 'string',
       },
       requirements: {
-        type: 'string',
         description: 'Optional requirements or notes to incorporate',
+        type: 'string',
       },
-      includeTests: {
-        type: 'boolean',
-        description: 'Include a minimal test file when applicable',
+      task: {
+        description: 'What to generate',
+        enum: ['component', 'feature', 'bootstrap', 'hook'],
+        type: 'string',
       },
     },
     required: ['task', 'name'],
+    type: 'object' as const,
   },
+  name: 'generate_code',
 };

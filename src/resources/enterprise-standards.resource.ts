@@ -6,9 +6,9 @@
 import type { Guideline } from '@/types';
 
 export const enterpriseStandardsResource: Guideline = {
-  uri: 'guidelines://enterprise-standards',
-  name: 'Enterprise Coding Standards',
   description: 'Enterprise-level coding standards document',
-  mimeType: 'text/markdown',
   file: 'enterprise_coding_standards.md',
+  mimeType: 'text/markdown',
+  name: 'Enterprise Coding Standards',
+  uri: 'guidelines://enterprise-standards',
 };

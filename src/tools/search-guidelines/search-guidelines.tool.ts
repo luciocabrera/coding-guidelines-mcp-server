@@ -22,8 +22,8 @@ export async function searchGuidelines(guidelinesPath: string, args: SearchGuide
   return {
     content: [
       {
-        type: 'text',
         text: results.length > 0 ? formatSearchResults(results) : `No results found for "${query}"`,
+        type: 'text',
       },
     ],
   };
