@@ -1,20 +1,31 @@
-import { readFile } from 'fs/promises';
-import { join } from 'path';
-
 import type { Guideline } from '@/types/common.types';
 
+import { readSafeFile, validatePath } from '@/utils/safe-file-reader';
+
 import type { SearchMatch, SearchResult } from '../search-guidelines.types';
+
+type SearchInGuidelineArgs = {
+  guideline: Guideline;
+  guidelinesPath: string;
+  query: string;
+};
 
 /**
  * Search for a query in a guideline file
  */
-export async function searchInGuideline(
-  guidelinesPath: string,
-  guideline: Guideline,
-  query: string,
-): Promise<SearchResult | null> {
+export const searchInGuideline = async ({
+  guideline,
+  guidelinesPath,
+  query,
+}: SearchInGuidelineArgs): Promise<SearchResult | undefined> => {
   try {
-    const content = await readFile(join(guidelinesPath, guideline.file), 'utf-8');
+    const validatedPath = validatePath({ basePath: guidelinesPath, filePath: guideline.file });
+
+    if (!validatedPath) {
+      return undefined;
+    }
+
+    const content = await readSafeFile(validatedPath);
     const lines = content.split('\n');
     const matches: SearchMatch[] = lines
       .map((line, index) => ({ index, line }))
@@ -23,9 +34,9 @@ export async function searchInGuideline(
     if (matches.length > 0) {
       return { guideline, matches };
     }
-    return null;
+    return undefined;
   } catch {
     // Silently skip files that can't be read
-    return null;
+    return undefined;
   }
-}
+};

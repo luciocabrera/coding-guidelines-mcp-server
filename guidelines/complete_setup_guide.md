@@ -186,14 +186,8 @@ echo "   3. Start developing!"
     "vitest": "^2.0.0"
   },
   "lint-staged": {
-    "*.{ts,tsx}": [
-      "eslint --fix",
-      "prettier --write",
-      "vitest related --run"
-    ],
-    "*.{json,md}": [
-      "prettier --write"
-    ]
+    "*.{ts,tsx}": ["eslint --fix", "prettier --write", "vitest related --run"],
+    "*.{json,md}": ["prettier --write"]
   }
 }
 ```
@@ -245,12 +239,7 @@ yarn.lock
   },
   "typescript.tsdk": "node_modules/typescript/lib",
   "typescript.enablePromptUseWorkspaceTsdk": true,
-  "eslint.validate": [
-    "javascript",
-    "javascriptreact",
-    "typescript",
-    "typescriptreact"
-  ],
+  "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"],
   "files.associations": {
     "*.css": "css"
   },
@@ -294,34 +283,34 @@ on:
 jobs:
   validate:
     runs-on: ubuntu-latest
-    
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
-      
+
       - name: Install dependencies
         run: npm ci
-      
+
       - name: Run type check
         run: npm run type-check
-      
+
       - name: Run linting
         run: npm run lint
-      
+
       - name: Run formatting check
         run: npm run format:check
-      
+
       - name: Run tests with coverage
         run: npm run test:ci
-      
+
       - name: Check bundle size
         run: npm run build:check
-      
+
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
@@ -376,6 +365,7 @@ npm run test:ui
 ## 🎯 What You Get
 
 ### ✅ Enforced Standards
+
 - TypeScript strict mode
 - ESLint with React 19 rules
 - Prettier auto-formatting
@@ -383,6 +373,7 @@ npm run test:ui
 - 80% test coverage minimum
 
 ### ✅ Development Experience
+
 - Hot module replacement
 - Type-safe routing
 - StyleX with zero runtime
@@ -390,6 +381,7 @@ npm run test:ui
 - VS Code integration
 
 ### ✅ Quality Assurance
+
 - Pre-commit hooks
 - Automated testing
 - Bundle size analysis
@@ -397,6 +389,7 @@ npm run test:ui
 - CI/CD pipeline
 
 ### ✅ Documentation
+
 - Coding standards guide
 - Testing best practices
 - Setup instructions
@@ -407,12 +400,14 @@ npm run test:ui
 ## 🆘 Troubleshooting
 
 ### Module not found errors
+
 ```bash
 npm install
 npm run type-check
 ```
 
 ### Husky hooks not running
+
 ```bash
 rm -rf .husky
 npx husky init
@@ -420,11 +415,13 @@ chmod +x .husky/pre-commit
 ```
 
 ### ESLint errors
+
 ```bash
 npm run lint:fix
 ```
 
 ### Test failures
+
 ```bash
 npm run test:ui
 # Then debug visually

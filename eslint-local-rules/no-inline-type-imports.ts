@@ -4,55 +4,60 @@
  * Enforces: import type { X } from 'module'
  */
 
-module.exports = {
+import type { Rule } from 'eslint';
+
+const rule: Rule.RuleModule = {
   meta: {
-    type: 'suggestion',
     docs: {
-      description: 'Enforce separate type imports instead of inline type imports',
       category: 'Stylistic Issues',
+      description: 'Enforce separate type imports instead of inline type imports',
       recommended: false,
     },
     fixable: 'code',
-    schema: [],
     messages: {
       noInlineTypeImport:
         'Use separate type import syntax: "import type { {{names}} }" instead of inline "type" keyword',
       redundantInlineType:
         'Redundant inline "type" keyword in import type statement. Remove "type" from: {{names}}',
     },
+    schema: [],
+    type: 'suggestion',
   },
 
   create(context) {
     return {
-      ImportDeclaration(node) {
+      ImportDeclaration(node: any) {
         // Case 1: Check if this is already an "import type" statement with redundant inline "type" keywords
         if (node.importKind === 'type') {
           const hasRedundantInlineTypes = node.specifiers.some(
-            (specifier) => specifier.type === 'ImportSpecifier' && specifier.importKind === 'type',
+            (specifier: any) => specifier.type === 'ImportSpecifier' && specifier.importKind === 'type',
           );
 
           if (hasRedundantInlineTypes) {
             const redundantNames = node.specifiers
-              .filter((specifier) => specifier.importKind === 'type')
-              .map((specifier) => specifier.imported.name)
+              .filter((specifier: any) => 
+                specifier.type === 'ImportSpecifier' && specifier.importKind === 'type'
+              )
+              .map((specifier: any) => specifier.imported.name)
               .join(', ');
 
             context.report({
-              node,
-              messageId: 'redundantInlineType',
               data: { names: redundantNames },
               fix(fixer) {
-                const sourceCode = context.getSourceCode();
+                const sourceCode = context.sourceCode;
 
                 // Build the fixed import by removing inline 'type' keywords
                 const importedNames = node.specifiers
-                  .map((specifier) => {
+                  .map((specifier: any) => {
+                    if (specifier.type !== 'ImportSpecifier') return null;
+                    
                     if (specifier.imported.name === specifier.local.name) {
                       return specifier.imported.name;
                     } else {
                       return `${specifier.imported.name} as ${specifier.local.name}`;
                     }
                   })
+                  .filter((name: string | null): name is string => name !== null)
                   .join(', ');
 
                 const fromClause = sourceCode.getText(node.source);
@@ -60,6 +65,8 @@ module.exports = {
 
                 return fixer.replaceText(node, newImport);
               },
+              messageId: 'redundantInlineType',
+              node,
             });
           }
           return;
@@ -67,7 +74,7 @@ module.exports = {
 
         // Case 2: Check if this is a regular import with inline type specifiers
         const hasInlineTypes = node.specifiers.some(
-          (specifier) => specifier.type === 'ImportSpecifier' && specifier.importKind === 'type',
+          (specifier: any) => specifier.type === 'ImportSpecifier' && specifier.importKind === 'type',
         );
 
         if (!hasInlineTypes) {
@@ -76,7 +83,7 @@ module.exports = {
 
         // Check if ALL imports are types (not mixed)
         const allTypes = node.specifiers.every(
-          (specifier) => specifier.type === 'ImportSpecifier' && specifier.importKind === 'type',
+          (specifier: any) => specifier.type === 'ImportSpecifier' && specifier.importKind === 'type',
         );
 
         if (!allTypes) {
@@ -85,20 +92,19 @@ module.exports = {
         }
 
         // Get the imported names
-        const names = node.specifiers.map((specifier) => specifier.imported.name).join(', ');
+        const names = node.specifiers
+          .filter((specifier: any) => specifier.type === 'ImportSpecifier')
+          .map((specifier: any) => specifier.imported.name)
+          .join(', ');
 
         context.report({
-          node,
-          messageId: 'noInlineTypeImport',
           data: { names },
           fix(fixer) {
-            const sourceCode = context.getSourceCode();
-            const importKeyword = sourceCode.getFirstToken(node);
-            const openBrace = sourceCode.getTokenAfter(importKeyword);
-
-            // Build the new import statement
+            const sourceCode = context.sourceCode;
+            
             const importedNames = node.specifiers
-              .map((specifier) => {
+              .filter((specifier: any) => specifier.type === 'ImportSpecifier')
+              .map((specifier: any) => {
                 if (specifier.imported.name === specifier.local.name) {
                   return specifier.imported.name;
                 } else {
@@ -112,8 +118,12 @@ module.exports = {
 
             return fixer.replaceText(node, newImport);
           },
+          messageId: 'noInlineTypeImport',
+          node,
         });
       },
     };
   },
 };
+
+export default rule;

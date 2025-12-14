@@ -2,16 +2,17 @@
  * Resources Index
  * Exports all resources and the main handler registration
  */
-
+/* eslint-disable @typescript-eslint/no-deprecated */
 import type { Server } from '@modelcontextprotocol/sdk/server/index.js';
+
 import {
   ListResourcesRequestSchema,
   ReadResourceRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
 
 import type { Guideline } from '../types/common.types.js';
-import { readGuidelineFile } from '../utils/index.js';
 
+import { readGuidelineFile } from '../utils/index.js';
 import { codingGuidelinesResource } from './coding-guidelines.resource.js';
 import { completeSetupResource } from './complete-setup.resource.js';
 import { e2eTestingResource } from './e2e-testing.resource.js';
@@ -29,10 +30,18 @@ export const GUIDELINES: Guideline[] = [
   completeSetupResource,
 ];
 
+type RegisterResourceHandlersArgs = {
+  guidelinesPath: string;
+  server: Server;
+};
+
 /**
  * Register resource handlers with the MCP server
  */
-export function registerResourceHandlers(server: Server, guidelinesPath: string): void {
+export const registerResourceHandlers = ({
+  guidelinesPath,
+  server,
+}: RegisterResourceHandlersArgs): void => {
   // List available resources
   server.setRequestHandler(ListResourcesRequestSchema, () => {
     return {
@@ -53,7 +62,7 @@ export function registerResourceHandlers(server: Server, guidelinesPath: string)
       throw new Error(`Resource not found: ${request.params.uri}`);
     }
 
-    const content = await readGuidelineFile(guidelinesPath, guideline.file);
+    const content = await readGuidelineFile({ filename: guideline.file, guidelinesPath });
 
     return {
       contents: [
@@ -65,4 +74,4 @@ export function registerResourceHandlers(server: Server, guidelinesPath: string)
       ],
     };
   });
-}
+};

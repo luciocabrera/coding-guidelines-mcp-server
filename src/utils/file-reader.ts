@@ -3,16 +3,29 @@
  * Functions for reading guideline files
  */
 
-import { readFile } from "fs/promises";
-import { join } from "path";
+import { readSafeFile, validatePath } from './safe-file-reader';
+
+type ReadGuidelineFileArgs = {
+  filename: string;
+  guidelinesPath: string;
+};
 
 /**
  * Read a guideline file content
  */
-export async function readGuidelineFile(guidelinesPath: string, filename: string): Promise<string> {
+export const readGuidelineFile = async ({
+  filename,
+  guidelinesPath,
+}: ReadGuidelineFileArgs): Promise<string> => {
+  const validatedPath = validatePath({ basePath: guidelinesPath, filePath: filename });
+
+  if (!validatedPath) {
+    throw new Error(`Path traversal detected: ${filename}`);
+  }
+
   try {
-    return await readFile(join(guidelinesPath, filename), "utf-8");
+    return await readSafeFile(validatedPath);
   } catch {
     throw new Error(`Failed to read guideline file: ${filename}`);
   }
-}
+};

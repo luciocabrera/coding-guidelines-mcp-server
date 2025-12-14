@@ -1,12 +1,17 @@
 import type { SearchResult } from '../search-guidelines.types';
 
+type FormatSearchResultsArgs = {
+  maxMatchesPerFile?: number;
+  results: SearchResult[];
+};
+
 /**
  * Format search results for display
  */
-export function formatSearchResults(
-  results: SearchResult[],
-  maxMatchesPerFile: number = 5,
-): string {
+export const formatSearchResults = ({
+  maxMatchesPerFile = 5,
+  results,
+}: FormatSearchResultsArgs): string => {
   if (results.length === 0) {
     return 'No results found';
   }
@@ -17,14 +22,14 @@ export function formatSearchResults(
     formatted.push(`\n**${guideline.name}** (${guideline.file}):`);
 
     const displayMatches = matches.slice(0, maxMatchesPerFile);
-    displayMatches.forEach(({ index, line }) => {
-      formatted.push(`Line ${index + 1}: ${line.trim()}`);
-    });
+    for (const { index, line } of displayMatches) {
+      formatted.push(`Line ${(index + 1).toString()}: ${line.trim()}`);
+    }
 
     if (matches.length > maxMatchesPerFile) {
-      formatted.push(`... and ${matches.length - maxMatchesPerFile} more matches`);
+      formatted.push(`... and ${(matches.length - maxMatchesPerFile).toString()} more matches`);
     }
   }
 
-  return `Found results in ${results.length} documents:\n${formatted.join('\n')}`;
-}
+  return `Found results in ${results.length.toString()} documents:\n${formatted.join('\n')}`;
+};

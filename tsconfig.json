@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
+    "target": "ES2023",
     "module": "ESNext",
     "moduleResolution": "Node",
     "strict": true,
@@ -17,5 +17,5 @@
     }
   },
   "include": ["src"],
-  "exclude": ["node_modules", "build", "out", "scripts"]
+  "exclude": ["node_modules", "build", "out", "scripts", "eslint-local-rules"]
 }

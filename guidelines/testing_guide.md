@@ -29,6 +29,7 @@ Comprehensive guide for writing tests that align with our enterprise coding stan
 ### What to Test
 
 ✅ **DO TEST:**
+
 - User interactions (clicks, typing, navigation)
 - Component rendering and props
 - State changes and side effects
@@ -37,6 +38,7 @@ Comprehensive guide for writing tests that align with our enterprise coding stan
 - Integration between components
 
 ❌ **DON'T TEST:**
+
 - Implementation details (internal state, private methods)
 - Third-party libraries
 - Styling (unless behavior-related)
@@ -153,12 +155,12 @@ screen.getByTestId('custom-element');
 
 ### Minimum Thresholds
 
-| Metric | Threshold | Enforced By |
-|--------|-----------|-------------|
-| Lines | 80% | Vitest |
-| Functions | 80% | Vitest |
-| Branches | 80% | Vitest |
-| Statements | 80% | Vitest |
+| Metric     | Threshold | Enforced By |
+| ---------- | --------- | ----------- |
+| Lines      | 80%       | Vitest      |
+| Functions  | 80%       | Vitest      |
+| Branches   | 80%       | Vitest      |
+| Statements | 80%       | Vitest      |
 
 ### Running Coverage
 
@@ -176,6 +178,7 @@ npm run test:watch
 ### Coverage Exceptions
 
 Files excluded from coverage (configured in `vitest.config.ts`):
+
 - `*.styles.ts` - Tested via component tests
 - `*.types.ts` - Type-only files
 - `index.ts` - Barrel files
@@ -200,11 +203,11 @@ describe('Button', () => {
     const { rerender } = renderWithProviders(
       <Button label="Primary" onClick={() => {}} variant="primary" />
     );
-    
+
     expect(screen.getByRole('button')).toBeInTheDocument();
-    
+
     rerender(<Button label="Secondary" onClick={() => {}} variant="secondary" />);
-    
+
     expect(screen.getByRole('button')).toBeInTheDocument();
   });
 });
@@ -216,12 +219,12 @@ describe('Button', () => {
 describe('UserProfile', () => {
   it('loads and displays user data', async () => {
     renderWithProviders(<UserProfile userId="123" />);
-    
+
     // Wait for loading to complete
     await waitFor(() => {
       expect(screen.queryByText(/loading/i)).not.toBeInTheDocument();
     });
-    
+
     // Verify data is displayed
     expect(screen.getByText('John Doe')).toBeInTheDocument();
   });
@@ -235,7 +238,7 @@ describe('UserProfile', () => {
     );
 
     renderWithProviders(<UserProfile userId="999" />);
-    
+
     await waitFor(() => {
       expect(screen.getByText(/error loading user/i)).toBeInTheDocument();
     });
@@ -250,16 +253,16 @@ describe('LoginForm', () => {
   it('submits form with valid data', async () => {
     const handleSubmit = vi.fn();
     const user = userEvent.setup();
-    
+
     renderWithProviders(<LoginForm onSubmit={handleSubmit} />);
-    
+
     // Fill out form
     await user.type(screen.getByLabelText('Email'), 'test@example.com');
     await user.type(screen.getByLabelText('Password'), 'password123');
-    
+
     // Submit
     await user.click(screen.getByRole('button', { name: /sign in/i }));
-    
+
     // Verify
     await waitFor(() => {
       expect(handleSubmit).toHaveBeenCalledWith({
@@ -271,12 +274,12 @@ describe('LoginForm', () => {
 
   it('displays validation errors for invalid input', async () => {
     const user = userEvent.setup();
-    
+
     renderWithProviders(<LoginForm onSubmit={() => {}} />);
-    
+
     // Submit without filling form
     await user.click(screen.getByRole('button', { name: /sign in/i }));
-    
+
     // Check for error messages
     expect(await screen.findByText(/email is required/i)).toBeInTheDocument();
     expect(await screen.findByText(/password is required/i)).toBeInTheDocument();
@@ -293,13 +296,13 @@ import { useUserData } from './useUserData.hook';
 describe('useUserData', () => {
   it('fetches user data on mount', async () => {
     const { result } = renderHook(() => useUserData({ userId: '123' }));
-    
+
     expect(result.current.isLoading).toBe(true);
-    
+
     await waitFor(() => {
       expect(result.current.isLoading).toBe(false);
     });
-    
+
     expect(result.current.data).toEqual({
       id: '123',
       name: 'John Doe',
@@ -307,18 +310,17 @@ describe('useUserData', () => {
   });
 
   it('refetches when userId changes', async () => {
-    const { result, rerender } = renderHook(
-      ({ userId }) => useUserData({ userId }),
-      { initialProps: { userId: '123' } }
-    );
-    
+    const { result, rerender } = renderHook(({ userId }) => useUserData({ userId }), {
+      initialProps: { userId: '123' },
+    });
+
     await waitFor(() => expect(result.current.isLoading).toBe(false));
-    
+
     // Change userId
     rerender({ userId: '456' });
-    
+
     expect(result.current.isLoading).toBe(true);
-    
+
     await waitFor(() => {
       expect(result.current.data?.id).toBe('456');
     });
@@ -336,18 +338,18 @@ describe('ThemeContext', () => {
         <ThemeConsumer />
       </ThemeProvider>
     );
-    
+
     expect(screen.getByText(/dark mode/i)).toBeInTheDocument();
   });
 
   it('throws error when used outside provider', () => {
     // Suppress console.error for this test
     const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    
+
     expect(() => {
       renderWithProviders(<ThemeConsumer />);
     }).toThrow('useTheme must be used within ThemeProvider');
-    
+
     spy.mockRestore();
   });
 });
@@ -363,15 +365,15 @@ describe('ErrorBoundary', () => {
     };
 
     const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    
+
     renderWithProviders(
       <ErrorBoundary>
         <ThrowError />
       </ErrorBoundary>
     );
-    
+
     expect(screen.getByText(/something went wrong/i)).toBeInTheDocument();
-    
+
     spy.mockRestore();
   });
 });
@@ -389,15 +391,15 @@ import { Profiler } from 'react';
 describe('PerformanceTest', () => {
   it('renders efficiently', () => {
     const onRender = vi.fn();
-    
+
     renderWithProviders(
       <Profiler id="test" onRender={onRender}>
         <HeavyComponent items={largeDataSet} />
       </Profiler>
     );
-    
+
     const [, , actualDuration] = onRender.mock.calls[0];
-    
+
     // Assert render time is under threshold
     expect(actualDuration).toBeLessThan(16); // 60fps = 16ms per frame
   });
@@ -418,22 +420,22 @@ on: [push, pull_request]
 jobs:
   test:
     runs-on: ubuntu-latest
-    
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
-      
+
       - name: Install dependencies
         run: npm ci
-      
+
       - name: Run tests with coverage
         run: npm run test:ci
-      
+
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         with:

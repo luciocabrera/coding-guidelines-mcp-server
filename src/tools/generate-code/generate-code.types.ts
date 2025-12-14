@@ -1,16 +1,9 @@
-export type GenerationTask = 'component' | 'feature' | 'bootstrap' | 'hook';
-
 export type GenerateCodeArgs = {
-  includeRef?: boolean;
-  includeTests?: boolean;
   name: string;
   requirements?: string;
+  shouldIncludeRef?: boolean;
+  shouldIncludeTests?: boolean;
   task: GenerationTask;
-};
-
-export type GeneratedFile = {
-  content: string;
-  path: string;
 };
 
 export type GenerateCodeResult = {
@@ -18,3 +11,10 @@ export type GenerateCodeResult = {
   files?: GeneratedFile[];
   text: string;
 };
+
+export type GeneratedFile = {
+  content: string;
+  path: string;
+};
+
+export type GenerationTask = 'bootstrap' | 'component' | 'feature' | 'hook';

@@ -3,14 +3,17 @@
  * Retrieves summaries or specific sections from guideline documents
  */
 
-import { GUIDELINES } from '@/resources';
 import type { Guideline } from '@/types';
+
+import { GUIDELINES } from '@/resources';
 import { readGuidelineFile } from '@/utils';
 
-export async function getGuidelineSummary(
-  guidelinesPath: string,
-  args: { guideline: string; section?: string },
-) {
+type GetGuidelineSummaryArgs = {
+  args: { guideline: string; section?: string };
+  guidelinesPath: string;
+};
+
+export const getGuidelineSummary = async ({ args, guidelinesPath }: GetGuidelineSummaryArgs) => {
   const { guideline: guidelineName, section } = args;
 
   const guideline = GUIDELINES.find((g: Guideline) => g.name === guidelineName);
@@ -25,7 +28,7 @@ export async function getGuidelineSummary(
     };
   }
 
-  const content = await readGuidelineFile(guidelinesPath, guideline.file);
+  const content = await readGuidelineFile({ filename: guideline.file, guidelinesPath });
 
   if (section) {
     // Simple section extraction based on markdown headers
@@ -46,11 +49,23 @@ export async function getGuidelineSummary(
     }
 
     // Find next section
-    const sectionLine = lines[sectionStart];
-    const headerLevel = sectionLine?.match(/^#+/)?.[0].length || 1;
+    // Use .at() for safe array access (Standard 010: Safe Object Property Access)
+    const sectionLine = lines.at(sectionStart);
+
+    if (!sectionLine) {
+      return {
+        content: [
+          {
+            text: `Section "${section}" not found in ${guidelineName}`,
+            type: 'text',
+          },
+        ],
+      };
+    }
+    const headerLevel = /^#+/.exec(sectionLine)?.[0].length ?? 1;
     const nextSectionIndex = lines.findIndex(
-      (line, idx) =>
-        idx > sectionStart && line.startsWith('#') && line.startsWith('#'.repeat(headerLevel)),
+      (line, index) =>
+        index > sectionStart && line.startsWith('#') && line.startsWith('#'.repeat(headerLevel)),
     );
 
     const sectionContent = lines
@@ -72,4 +87,4 @@ export async function getGuidelineSummary(
       },
     ],
   };
-}
+};

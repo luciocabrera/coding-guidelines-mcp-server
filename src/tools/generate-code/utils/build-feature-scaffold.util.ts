@@ -1,10 +1,18 @@
-import { SHARED_GUIDELINES_NOTES } from '../generate-code.const';
 import type { GenerateCodeResult } from '../generate-code.types';
 
+import { SHARED_GUIDELINES_NOTES } from '../generate-code.const';
 import { buildComponentScaffold } from './build-component-scaffold.util';
 import { toPascalCase } from './to-pascal-case.util';
 
-export function buildFeatureScaffold(name: string, requirements?: string): GenerateCodeResult {
+type BuildFeatureScaffoldArgs = {
+  name: string;
+  requirements?: string;
+};
+
+export const buildFeatureScaffold = ({
+  name,
+  requirements,
+}: BuildFeatureScaffoldArgs): GenerateCodeResult => {
   const featureName = toPascalCase(name || 'Feature');
   const componentName = `${featureName}Card`;
   const base = `Feature bundle: ${featureName}
@@ -19,7 +27,12 @@ Structure:
 - src/features/${featureName}/index.ts (barrel)
 `;
 
-  const componentSnippet = buildComponentScaffold(componentName, undefined, false, false);
+  const componentSnippet = buildComponentScaffold({
+    name: componentName,
+    requirements: undefined,
+    shouldIncludeRef: false,
+    shouldIncludeTests: false,
+  });
   const hookSnippet = `### use${featureName}.hook.ts\n\n\`\`\`ts\nimport { useEffect, useState } from "react";
 
 type Use${featureName}State = { readonly loading: boolean; readonly data: string | null; };
@@ -61,4 +74,4 @@ export const fetch${featureName} = async () => {
     files: undefined,
     text: `${SHARED_GUIDELINES_NOTES}\n${extras}\n${base}\n${componentSnippet.text}\n\n${hookSnippet}\n\n${serviceSnippet}`,
   };
-}
+};

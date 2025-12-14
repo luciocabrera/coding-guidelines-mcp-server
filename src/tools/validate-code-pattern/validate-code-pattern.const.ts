@@ -26,6 +26,7 @@ export const VALIDATION_RULES: Record<ValidationCategory, ValidationRule> = {
     antiPatterns: [/React\.FC/, /function\s+\w+\(/, /\bforwardRef\s*\(/, /React\.forwardRef\s*\(/],
     patterns: [/const\s+\w+\s*=\s*\(/],
   },
+  // eslint-disable-next-line @typescript-eslint/naming-convention
   'file-structure': {
     advice: 'Use TypeScript files (.ts/.tsx). Group related files in feature folders',
     antiPatterns: [/\.jsx$/, /\.js$/],

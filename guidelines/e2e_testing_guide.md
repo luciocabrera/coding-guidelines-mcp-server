@@ -21,6 +21,7 @@ Complete guide for Playwright E2E testing and Lighthouse CI performance monitori
 ### Overview
 
 Playwright provides reliable end-to-end testing across all modern browsers with:
+
 - ✅ **Cross-browser support** - Chrome, Firefox, Safari, Edge
 - ✅ **Mobile emulation** - Test responsive designs
 - ✅ **Auto-waiting** - No flaky tests from race conditions
@@ -91,6 +92,7 @@ npx playwright show-report
 ### Overview
 
 Lighthouse CI automatically monitors:
+
 - ✅ **Core Web Vitals** - LCP, FID, CLS
 - ✅ **Performance scores** - Overall page performance
 - ✅ **Accessibility** - WCAG compliance
@@ -159,6 +161,7 @@ npx playwright install
 ### 2. Copy Configuration Files
 
 Copy these files from the artifacts:
+
 - `playwright.config.ts`
 - `lighthouserc.js`
 - `e2e/fixtures.ts`
@@ -220,10 +223,10 @@ test.describe('Feature Name', () => {
 
   test('should do something', async ({ page }) => {
     // Arrange - Set up test state
-    
+
     // Act - Perform user actions
     await page.click('button');
-    
+
     // Assert - Verify outcomes
     await expect(page.locator('h1')).toHaveText('Expected Text');
   });
@@ -277,14 +280,10 @@ await page.waitForSelector('button', { state: 'visible' });
 await page.waitForURL('**/dashboard');
 
 // Wait for network request
-await page.waitForResponse(resp => 
-  resp.url().includes('/api/users') && resp.status() === 200
-);
+await page.waitForResponse((resp) => resp.url().includes('/api/users') && resp.status() === 200);
 
 // Wait for custom condition
-await page.waitForFunction(() => 
-  document.querySelectorAll('.item').length > 5
-);
+await page.waitForFunction(() => document.querySelectorAll('.item').length > 5);
 ```
 
 #### Network Interception
@@ -292,13 +291,13 @@ await page.waitForFunction(() =>
 ```typescript
 test('mock API responses', async ({ page }) => {
   // Mock API call
-  await page.route('**/api/users', route => {
+  await page.route('**/api/users', (route) => {
     route.fulfill({
       status: 200,
       contentType: 'application/json',
       body: JSON.stringify({
-        users: [{ id: 1, name: 'Test User' }]
-      })
+        users: [{ id: 1, name: 'Test User' }],
+      }),
     });
   });
 
@@ -312,10 +311,10 @@ test('mock API responses', async ({ page }) => {
 ```typescript
 test('upload file', async ({ page }) => {
   await page.goto('/upload');
-  
+
   const fileInput = page.locator('input[type="file"]');
   await fileInput.setInputFiles('./test-file.pdf');
-  
+
   await page.click('button[type="submit"]');
   await expect(page.locator('.success')).toBeVisible();
 });
@@ -330,16 +329,16 @@ test('save auth state', async ({ page }) => {
   await page.fill('[name="email"]', 'user@example.com');
   await page.fill('[name="password"]', 'password');
   await page.click('button[type="submit"]');
-  
+
   // Save storage state
-  await page.context().storageState({ 
-    path: 'e2e/.auth/user.json' 
+  await page.context().storageState({
+    path: 'e2e/.auth/user.json',
   });
 });
 
 // Use saved authentication
-test.use({ 
-  storageState: 'e2e/.auth/user.json' 
+test.use({
+  storageState: 'e2e/.auth/user.json',
 });
 
 test('authenticated test', async ({ page }) => {
@@ -353,13 +352,13 @@ test('authenticated test', async ({ page }) => {
 ```typescript
 test('visual test', async ({ page }) => {
   await page.goto('/');
-  
+
   // Take screenshot
-  await page.screenshot({ 
+  await page.screenshot({
     path: 'screenshots/homepage.png',
-    fullPage: true 
+    fullPage: true,
   });
-  
+
   // Compare screenshot (requires @playwright/test)
   await expect(page).toHaveScreenshot('homepage.png');
 });
@@ -371,13 +370,13 @@ test('visual test', async ({ page }) => {
 
 ### Core Web Vitals Targets
 
-| Metric | Good | Needs Improvement | Poor |
-|--------|------|-------------------|------|
-| **LCP** (Largest Contentful Paint) | ≤ 2.5s | 2.5s - 4.0s | > 4.0s |
-| **FID** (First Input Delay) | ≤ 100ms | 100ms - 300ms | > 300ms |
-| **CLS** (Cumulative Layout Shift) | ≤ 0.1 | 0.1 - 0.25 | > 0.25 |
-| **FCP** (First Contentful Paint) | ≤ 1.8s | 1.8s - 3.0s | > 3.0s |
-| **TBT** (Total Blocking Time) | ≤ 200ms | 200ms - 600ms | > 600ms |
+| Metric                             | Good    | Needs Improvement | Poor    |
+| ---------------------------------- | ------- | ----------------- | ------- |
+| **LCP** (Largest Contentful Paint) | ≤ 2.5s  | 2.5s - 4.0s       | > 4.0s  |
+| **FID** (First Input Delay)        | ≤ 100ms | 100ms - 300ms     | > 300ms |
+| **CLS** (Cumulative Layout Shift)  | ≤ 0.1   | 0.1 - 0.25        | > 0.25  |
+| **FCP** (First Contentful Paint)   | ≤ 1.8s  | 1.8s - 3.0s       | > 3.0s  |
+| **TBT** (Total Blocking Time)      | ≤ 200ms | 200ms - 600ms     | > 600ms |
 
 ### Bundle Size Budgets
 
@@ -431,17 +430,19 @@ on:
   pull_request:
     branches: [main, develop]
   schedule:
-    - cron: '0 2 * * *'  # Daily at 2 AM
+    - cron: '0 2 * * *' # Daily at 2 AM
 ```
 
 ### Viewing Results
 
 #### Playwright Reports
+
 - Uploaded as GitHub Actions artifacts
 - Available in PR comments
 - HTML report with traces and videos
 
 #### Lighthouse Results
+
 - Posted as PR comments
 - Scores and recommendations
 - Historical trends (with LHCI server)
@@ -453,6 +454,7 @@ on:
 ### E2E Testing
 
 #### ✅ DO:
+
 - Test user journeys, not implementation
 - Use data-testid for dynamic content
 - Keep tests independent
@@ -463,6 +465,7 @@ on:
 - Run in multiple browsers
 
 #### ❌ DON'T:
+
 - Test implementation details
 - Use CSS selectors that may change
 - Share state between tests
@@ -474,6 +477,7 @@ on:
 ### Performance Monitoring
 
 #### ✅ DO:
+
 - Set realistic budgets
 - Monitor trends over time
 - Test on mobile networks
@@ -483,6 +487,7 @@ on:
 - Address warnings promptly
 
 #### ❌ DON'T:
+
 - Ignore performance regressions
 - Set unrealistic budgets
 - Test only on fast connections
@@ -497,15 +502,17 @@ on:
 ### Playwright Issues
 
 **Tests timing out:**
+
 ```typescript
 // Increase timeout
 test.setTimeout(60000);
 
 // Or globally in config
-timeout: 60000
+timeout: 60000;
 ```
 
 **Element not found:**
+
 ```typescript
 // Use auto-waiting locators
 await page.locator('button').click();
@@ -515,6 +522,7 @@ await expect(page.locator('button')).toBeVisible();
 ```
 
 **Flaky tests:**
+
 ```typescript
 // Use strict locators
 await page.locator('button:has-text("Submit")').click();
@@ -526,11 +534,13 @@ await page.goto('/', { waitUntil: 'networkidle' });
 ### Lighthouse Issues
 
 **Low scores in CI but good locally:**
+
 - CI runs on slower machines
 - Adjust throttling settings
 - Use more runs for median: `numberOfRuns: 5`
 
 **Different scores each run:**
+
 - Normal variation ±5 points
 - Use median of multiple runs
 - Focus on trends, not single scores

@@ -1,20 +1,27 @@
-import { SHARED_GUIDELINES_NOTES } from '../generate-code.const';
 import type { GenerateCodeResult, GeneratedFile } from '../generate-code.types';
 
+import { SHARED_GUIDELINES_NOTES } from '../generate-code.const';
 import { toPascalCase } from './to-pascal-case.util';
 
-export function buildComponentScaffold(
-  name: string,
-  requirements?: string,
-  includeTests: boolean = true,
-  includeRef: boolean = false,
-): GenerateCodeResult {
-  const componentName = toPascalCase(name || 'Component');
-  const propsName = `${componentName}Props`;
+type BuildComponentScaffoldArgs = {
+  name: string;
+  requirements?: string;
+  shouldIncludeRef?: boolean;
+  shouldIncludeTests?: boolean;
+};
 
-  const componentFile = includeRef
+export const buildComponentScaffold = ({
+  name,
+  requirements,
+  shouldIncludeRef: shouldIncludeReference = false,
+  shouldIncludeTests = true,
+}: BuildComponentScaffoldArgs): GenerateCodeResult => {
+  const componentName = toPascalCase(name || 'Component');
+  const propertiesName = `${componentName}Props`;
+
+  const componentFile = shouldIncludeReference
     ? `import * as stylex from "@stylexjs/stylex";
-import type { ${propsName} } from "./${componentName}.types";
+import type { ${propertiesName} } from "./${componentName}.types";
 import { styles } from "./${componentName}.styles";
 
 export const ${componentName} = ({
@@ -24,7 +31,7 @@ export const ${componentName} = ({
   onPress,
   ref,
   variant = "primary",
-}: ${propsName}) => {
+}: ${propertiesName}) => {
   const handlePress = () => {
     if (disabled) return;
     onPress();
@@ -46,10 +53,10 @@ export const ${componentName} = ({
 };
 `
     : `import * as stylex from "@stylexjs/stylex";
-import type { ${propsName} } from "./${componentName}.types";
+import type { ${propertiesName} } from "./${componentName}.types";
 import { styles } from "./${componentName}.styles";
 
-export const ${componentName} = ({ disabled = false, icon, label, onPress, variant = "primary" }: ${propsName}) => {
+export const ${componentName} = ({ disabled = false, icon, label, onPress, variant = "primary" }: ${propertiesName}) => {
   const handlePress = () => {
     if (disabled) return;
     onPress();
@@ -70,10 +77,10 @@ export const ${componentName} = ({ disabled = false, icon, label, onPress, varia
 };
 `;
 
-  const typesFile = includeRef
+  const typesFile = shouldIncludeReference
     ? `import type { ComponentPropsWithoutRef, ReactNode, Ref } from "react";
 
-export type ${propsName} = ComponentPropsWithoutRef<"button"> & {
+export type ${propertiesName} = ComponentPropsWithoutRef<"button"> & {
   readonly label: string;
   readonly icon?: ReactNode;
   readonly onPress: () => void;
@@ -84,7 +91,7 @@ export type ${propsName} = ComponentPropsWithoutRef<"button"> & {
 `
     : `import type { ComponentPropsWithoutRef, ReactNode } from "react";
 
-export type ${propsName} = ComponentPropsWithoutRef<"button"> & {
+export type ${propertiesName} = ComponentPropsWithoutRef<"button"> & {
   readonly label: string;
   readonly icon?: ReactNode;
   readonly onPress: () => void;
@@ -134,7 +141,7 @@ export const styles = stylex.create({
 `;
 
   const indexFile = `export { ${componentName} } from "./${componentName}";
-export type { ${propsName} } from "./${componentName}.types";
+export type { ${propertiesName} } from "./${componentName}.types";
 `;
 
   const testFile = `import { describe, it, expect, vi } from "vitest";
@@ -193,7 +200,7 @@ describe("${componentName}", () => {
     { content: indexFile, path: `src/components/${componentName}/index.ts` },
   ];
 
-  if (includeTests) {
+  if (shouldIncludeTests) {
     files.push({
       content: testFile,
       path: `src/components/${componentName}/${componentName}.test.tsx`,
@@ -210,4 +217,4 @@ describe("${componentName}", () => {
       .map((f) => `- ${f.path}`)
       .join('\n')}${postSteps}`,
   };
-}
+};

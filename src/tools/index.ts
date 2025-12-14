@@ -2,19 +2,21 @@
  * Tools Index
  * Exports all tools and the main handler registration
  */
-
+/* eslint-disable @typescript-eslint/no-deprecated */
 import type { Server } from '@modelcontextprotocol/sdk/server/index.js';
+
 import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
 
-import { GENERATE_CODE_TOOL } from './generate-code/generate-code.const';
 import type { GenerateCodeArgs, GenerateCodeResult } from './generate-code/generate-code.types';
 import type { SearchGuidelinesArgs } from './search-guidelines/search-guidelines.types.js';
-import { VALIDATE_CODE_PATTERN_TOOL } from './validate-code-pattern/validate-code-pattern.const.js';
 import type { ValidateCodePatternArgs } from './validate-code-pattern/validate-code-pattern.types';
+
 import { generateCode } from './generate-code';
+import { GENERATE_CODE_TOOL } from './generate-code/generate-code.const';
 import { GET_GUIDELINE_SUMMARY_TOOL, getGuidelineSummary } from './get-guideline-summary';
 import { SEARCH_GUIDELINES_TOOL, searchGuidelines } from './search-guidelines';
 import { validateCodePattern } from './validate-code-pattern';
+import { VALIDATE_CODE_PATTERN_TOOL } from './validate-code-pattern/validate-code-pattern.const.js';
 
 // Export all tools for easy access
 export const ALL_TOOLS = [
@@ -24,10 +26,18 @@ export const ALL_TOOLS = [
   GENERATE_CODE_TOOL,
 ];
 
+type RegisterToolHandlersArgs = {
+  guidelinesPath: string;
+  server: Server;
+};
+
 /**
  * Register all tool handlers with the MCP server
  */
-export function registerToolHandlers(server: Server, guidelinesPath: string): void {
+export const registerToolHandlers = ({
+  guidelinesPath,
+  server,
+}: RegisterToolHandlersArgs): void => {
   // List available tools
   server.setRequestHandler(ListToolsRequestSchema, () => {
     return {
@@ -37,21 +47,9 @@ export function registerToolHandlers(server: Server, guidelinesPath: string): vo
 
   // Handle tool calls
   server.setRequestHandler(CallToolRequestSchema, async (request) => {
-    const { arguments: args, name } = request.params;
+    const { args, name } = request.params;
 
     switch (name) {
-      case 'search_guidelines':
-        return await searchGuidelines(guidelinesPath, args as SearchGuidelinesArgs);
-
-      case 'validate_code_pattern':
-        return validateCodePattern(args as ValidateCodePatternArgs);
-
-      case 'get_guideline_summary':
-        return await getGuidelineSummary(
-          guidelinesPath,
-          args as { guideline: string; section?: string },
-        );
-
       case 'generate_code': {
         const result = generateCode(args as GenerateCodeArgs) as GenerateCodeResult;
         // Wrap into MCP response content while keeping files/commands in the envelope
@@ -62,8 +60,27 @@ export function registerToolHandlers(server: Server, guidelinesPath: string): vo
         };
       }
 
-      default:
+      case 'get_guideline_summary': {
+        return await getGuidelineSummary({
+          args: args as { guideline: string; section?: string },
+          guidelinesPath,
+        });
+      }
+
+      case 'search_guidelines': {
+        return await searchGuidelines({
+          args: args as SearchGuidelinesArgs,
+          guidelinesPath,
+        });
+      }
+
+      case 'validate_code_pattern': {
+        return validateCodePattern(args as ValidateCodePatternArgs);
+      }
+
+      default: {
         throw new Error(`Unknown tool: ${name}`);
+      }
     }
   });
-}
+};

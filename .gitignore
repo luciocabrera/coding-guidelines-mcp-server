@@ -1,12 +1,8 @@
 node_modules
 .DS_Store
 dist
-out/
 build/
 *.vsix
 coverage
 *.log
 .idea
-.vscode
-!.vscode/
-!.vscode/settings.json

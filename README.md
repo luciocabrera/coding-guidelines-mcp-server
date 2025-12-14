@@ -1,148 +1,154 @@
 # Coding Guidelines MCP Server
 
-An MCP (Model Context Protocol) server that provides your coding guidelines and enterprise standards as resources for AI assistants.
+Model Context Protocol server providing coding guidelines, enterprise standards, and code generation for AI assistants.
 
-## Features
+## 🎯 What is This?
 
-- **Resources**: Access all coding guideline documents as MCP resources
-  - Coding Guidelines
-  - Enterprise Coding Standards
-  - Testing Guide
-  - E2E Testing Guide
-  - Complete Setup Guide
+This MCP server gives AI assistants (GitHub Copilot, Claude, etc.) direct access to your team's coding standards, guidelines, and code generation templates. No more copy-pasting guidelines into prompts!
 
-- **Tools**:
-  - `search_guidelines`: Search across all guideline documents
-  - `validate_code_pattern`: Validate code against established patterns
-  - `get_guideline_summary`: Summarize a guideline document/section
-  - `generate_code`: Generate standard-compliant code artifacts
+## ✨ Features
 
-## Installation
+### 📚 Resources
+
+- Coding Guidelines
+- Enterprise Coding Standards
+- Testing Best Practices
+- E2E Testing Patterns
+- Complete Setup Guides
+- ESLint Rules Documentation
+
+### 🛠️ Tools
+
+- **`search_guidelines`** - Find coding patterns and best practices
+- **`validate_code_pattern`** - Check code against standards
+- **`get_guideline_summary`** - Get document summaries
+- **`generate_code`** - Generate React components/features/hooks/bootstrap projects
+
+## 🚀 Quick Start
+
+### 1. Install & Build
 
 ```bash
 npm install
 npm run build
 ```
 
-## Usage
+### 2. Configure in VS Code (GitHub Copilot)
 
-The MCP server is ready to use! Here are the ways to access it:
+Add to your `.vscode/settings.json` or User Settings:
 
-### Option 1: Direct Testing (Command Line)
-
-Test the server directly to verify it's working:
-
-```bash
-# List all resources
-echo '{"jsonrpc":"2.0","id":1,"method":"resources/list"}' | node build/index.js
-
-# Read a guideline
-echo '{"jsonrpc":"2.0","id":2,"method":"resources/read","params":{"uri":"guidelines://coding-guidelines"}}' | node build/index.js
-
-# Search guidelines
-echo '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"search_guidelines","arguments":{"query":"StyleX"}}}' | node build/index.js
-```
-
-### Option 2: MCP Inspector (Visual Testing)
-
-Test interactively with the MCP Inspector:
-
-```bash
-npx @modelcontextprotocol/inspector node build/index.js
-```
-
-### Option 3: Integrate with AI Assistants
-
-The server works with any MCP-compatible AI assistant. Configuration depends on the client:
-
-- **Claude Desktop**: See [Claude MCP docs](https://modelcontextprotocol.io/quickstart/user)
-- **Other MCP clients**: Provide the command `node /absolute/path/to/build/index.js`
-
-**Note:** GitHub Copilot does not directly connect to MCP servers. This repo includes a VS Code Chat participant extension that can act as a bridge.
-
-## VS Code Copilot Chat Agent (Bridge)
-
-This repository also contains a VS Code extension that registers chat participants:
-
-- `@guidelines` — Coding Guidelines
-- `@guardian` — Enterprise Code Guardian
-
-Both participants use the bundled MCP server/tools to search/summarize/validate guidelines and generate code.
-
-### How Copilot connects to the MCP server
-
-See [.copilot/examples.md](.copilot/examples.md) for the end-to-end connection chain (agent settings → instructions → `guidelines://...` resources → tool calls → stdio transport).
-
-To debug MCP traffic in Copilot, enable:
-
-```jsonc
+```json
 {
-  "github.copilot.advanced": {
-    "debug": {
-      "mcp": true,
-    },
-  },
+  "github.copilot.chat.mcp.servers": {
+    "coding-guidelines": {
+      "command": "node",
+      "args": ["/absolute/path/to/coding-guidelines-mcp-server/build/index.js"]
+    }
+  }
 }
 ```
 
-### Run locally
+Replace `/absolute/path/to/` with your actual path to this repository.
+
+### 3. Restart VS Code
+
+After adding the configuration, restart VS Code to activate the MCP server.
+
+### 4. Use with Copilot
+
+Chat naturally - Copilot will automatically use the tools:
+
+```
+You: "Search for React component guidelines"
+Copilot: [uses search_guidelines tool]
+
+You: "Generate a Button component with ref support"
+Copilot: [uses generate_code tool]
+
+You: "Validate this code: [paste code]"
+Copilot: [uses validate_code_pattern tool]
+```
+
+## 📖 Full Documentation
+
+See **[MCP_SETUP.md](MCP_SETUP.md)** for:
+
+- Detailed installation steps
+- Claude Desktop configuration
+- Tool usage examples
+- Development guide
+
+## 🔧 Development
+
+### Build
 
 ```bash
-npm install
 npm run build
 ```
 
-Then launch the extension in VS Code (Extension Development Host) and open Copilot Chat.
-
-If you don't see `@guardian` in the chat input, it usually means the extension is not running:
-
-- **Dev Host**: open this repo in VS Code, run `npm run build`, then press `F5` (Run Extension) and use Copilot Chat in the **Extension Development Host** window.
-- **Packaged**: run `npm run package`, then install the generated `.vsix` via “Extensions: Install from VSIX…”.
-
-## Development
+### Test Locally
 
 ```bash
-# Watch mode for development
-npm run watch
-
-# Build
-npm run build
+npm run dev
+# Server runs on stdio - you'll see: "Coding Guidelines MCP Server running on stdio"
 ```
 
-## Testing with MCP Inspector
+### Validate Code Quality
+
+```bash
+npm run validate  # lint + format + typecheck
+```
+
+### Test with MCP Inspector
 
 ```bash
 npx @modelcontextprotocol/inspector node build/index.js
 ```
 
-## Available Resources
+## 📦 Available Tools
 
-- `guidelines://eslint-rules` - ESLint rules quick reference
-- `guidelines://coding-guidelines` - Main coding guidelines
-- `guidelines://enterprise-standards` - Enterprise coding standards
-- `guidelines://testing-guide` - Testing standards
-- `guidelines://e2e-testing` - E2E testing guide
-- `guidelines://complete-setup` - Complete setup guide
+| Tool                    | Description                     | Arguments                                               |
+| ----------------------- | ------------------------------- | ------------------------------------------------------- |
+| `search_guidelines`     | Search all guideline documents  | `query: string`                                         |
+| `validate_code_pattern` | Validate code against standards | `code: string`, `pattern_type: string`                  |
+| `get_guideline_summary` | Get document summaries          | `document: string`                                      |
+| `generate_code`         | Generate React code artifacts   | `task, name, requirements?, includeTests?, includeRef?` |
 
-## Available Tools
+## 📚 Available Resources
 
-### search_guidelines
+| URI                                 | Description            |
+| ----------------------------------- | ---------------------- |
+| `guidelines://coding-guidelines`    | Main coding standards  |
+| `guidelines://enterprise-standards` | Enterprise patterns    |
+| `guidelines://testing-guide`        | Testing best practices |
+| `guidelines://e2e-testing`          | E2E testing patterns   |
+| `guidelines://complete-setup`       | Complete setup guide   |
+| `guidelines://eslint-rules`         | ESLint rules reference |
 
-Search for specific coding guidelines or patterns across all documents.
+## 🎨 Custom ESLint Rules
 
-**Input:**
+This project includes TypeScript-based custom ESLint rules for enforcing team standards:
 
-- `query` (string): Search query (e.g., 'StyleX', 'testing', 'TypeScript')
+- **`no-inline-type-imports`** - Enforce `import type { X }` instead of `import { type X }`
+- **`merge-duplicate-imports`** - Merge multiple imports from same source
+- **`destructuring-for-functions`** - Enforce object params for functions with 2+ parameters
 
-### validate_code_pattern
+See [eslint-local-rules/README.md](eslint-local-rules/README.md) for details.
 
-Check if a code pattern follows the established guidelines.
+## 📂 Project Structure
 
-**Input:**
+```
+├── build/                    # Compiled MCP server (gitignored)
+├── guidelines/               # Guideline documents
+├── src/
+│   ├── index.ts             # MCP server entry point
+│   ├── resources/           # MCP resource handlers
+│   ├── tools/               # MCP tool implementations
+│   └── types/               # TypeScript types
+├── eslint-local-rules/      # Custom ESLint rules
+└── scripts/                 # Build scripts
+```
 
-- `code` (string): Code snippet to validate
-- `category` (string): One of 'component', 'styling', 'types', 'testing', 'file-structure'
-
-## License
+## 📝 License
 
 MIT

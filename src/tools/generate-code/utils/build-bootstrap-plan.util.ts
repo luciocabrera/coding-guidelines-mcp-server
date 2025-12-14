@@ -1,7 +1,8 @@
-import { SHARED_GUIDELINES_NOTES } from '../generate-code.const';
 import type { GenerateCodeResult, GeneratedFile } from '../generate-code.types';
 
-export function buildBootstrapPlan(requirements?: string): GenerateCodeResult {
+import { SHARED_GUIDELINES_NOTES } from '../generate-code.const';
+
+export const buildBootstrapPlan = (requirements?: string): GenerateCodeResult => {
   const steps = `Bootstrap plan (React 19 + Vite + TypeScript + StyleX + ESLint + Prettier + Husky + Testing):
 1) npm create vite@latest . -- --template react-ts
 2) npm install @stylexjs/stylex @stylexjs/babel-plugin @stylexjs/eslint-plugin zod react-router-dom @types/react-router-dom --legacy-peer-deps
@@ -475,4 +476,4 @@ describe("App", () => {
     files,
     text: `${SHARED_GUIDELINES_NOTES}\n${extra}\n${steps}`,
   };
-}
+};

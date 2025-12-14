@@ -19,10 +19,6 @@ export const GENERATE_CODE_TOOL = {
     'Generate guideline-compliant scaffolds for components, features, or project bootstrap',
   inputSchema: {
     properties: {
-      includeTests: {
-        description: 'Include a minimal test file when applicable',
-        type: 'boolean',
-      },
       name: {
         description: 'Name of the component/feature/hook',
         type: 'string',
@@ -30,6 +26,10 @@ export const GENERATE_CODE_TOOL = {
       requirements: {
         description: 'Optional requirements or notes to incorporate',
         type: 'string',
+      },
+      shouldIncludeTests: {
+        description: 'Include a minimal test file when applicable',
+        type: 'boolean',
       },
       task: {
         description: 'What to generate',
