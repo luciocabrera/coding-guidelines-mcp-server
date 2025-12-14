@@ -1,5 +1,7 @@
 #!/usr/bin/env node
-/* eslint-disable @typescript-eslint/no-deprecated */
+
+// We use Server (not McpServer) because we need low-level request handling for stdio transport
+// McpServer is designed for HTTP transports with registerTool/registerResource APIs
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
@@ -17,6 +19,7 @@ const DIR_NAME = path.dirname(FILE_NAME);
 const GUIDELINES_PATH = process.env.GUIDELINES_PATH ?? path.join(DIR_NAME, '../guidelines');
 
 // Create server instance
+// eslint-disable-next-line @typescript-eslint/no-deprecated
 const server = new Server(
   {
     name: 'coding-guidelines-server',

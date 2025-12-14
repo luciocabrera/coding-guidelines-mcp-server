@@ -2,7 +2,10 @@
  * Tools Index
  * Exports all tools and the main handler registration
  */
-/* eslint-disable @typescript-eslint/no-deprecated */
+
+// We use Server (not McpServer) for low-level setRequestHandler API
+// McpServer is designed for high-level registerResource/registerTool APIs
+
 import type { Server } from '@modelcontextprotocol/sdk/server/index.js';
 
 import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
@@ -28,6 +31,7 @@ export const ALL_TOOLS = [
 
 type RegisterToolHandlersArgs = {
   guidelinesPath: string;
+  // eslint-disable-next-line @typescript-eslint/no-deprecated
   server: Server;
 };
 
