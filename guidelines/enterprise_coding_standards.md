@@ -63,17 +63,17 @@ src/
 
 Every file must have a clear, predictable suffix indicating its purpose.
 
-| Type          | Pattern        | Example                 | Purpose                       |
-| ------------- | -------------- | ----------------------- | ----------------------------- |
-| **Component** | `*.tsx`        | `UserCard.tsx`          | React component               |
-| **Hook**      | `*.hook.ts`    | `useUserData.hook.ts`   | Custom React hook             |
-| **Utility**   | `*.util.ts`    | `dateFormatter.util.ts` | Pure utility function         |
-| **Service**   | `*.service.ts` | `userApi.service.ts`    | External service integration  |
-| **Style**     | `*.styles.ts`  | `UserCard.styles.ts`    | StyleX definitions            |
-| **Type**      | `*.types.ts`   | `UserCard.types.ts`     | TypeScript type definitions   |
-| **Test**      | `*.test.tsx`   | `UserCard.test.tsx`     | Unit/integration tests        |
-| **Constant**  | `*.const.ts`   | `validation.const.ts`   | Immutable constants           |
-| **Schema**    | `*.schema.ts`  | `user.schema.ts`        | Validation schemas (Zod, Yup) |
+| Type          | Pattern           | Example                  | Purpose                       |
+| ------------- | ----------------- | ------------------------ | ----------------------------- |
+| **Component** | `*.component.tsx` | `UserCard.component.tsx` | React component               |
+| **Hook**      | `*.hook.ts`       | `useUserData.hook.ts`    | Custom React hook             |
+| **Utility**   | `*.util.ts`       | `dateFormatter.util.ts`  | Pure utility function         |
+| **Service**   | `*.service.ts`    | `userApi.service.ts`     | External service integration  |
+| **Style**     | `*.styles.ts`     | `UserCard.styles.ts`     | StyleX definitions            |
+| **Type**      | `*.types.ts`      | `UserCard.types.ts`      | TypeScript type definitions   |
+| **Test**      | `*.test.tsx`      | `UserCard.test.tsx`      | Unit/integration tests        |
+| **Constant**  | `*.const.ts`      | `validation.const.ts`    | Immutable constants           |
+| **Schema**    | `*.schema.ts`     | `user.schema.ts`         | Validation schemas (Zod, Yup) |
 
 ### 1.3 Barrel Files (Public APIs)
 
