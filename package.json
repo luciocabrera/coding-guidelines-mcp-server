@@ -48,6 +48,8 @@
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p src/extension/tsconfig.json",
     "format": "prettier --write \"src/**/*.ts\"",
     "format:check": "prettier --check \"src/**/*.ts\"",
+    "test": "npm run build:mcp && vitest run",
+    "test:watch": "vitest",
     "watch": "tsc -p src/extension/tsconfig.json --watch",
     "vscode:prepublish": "npm run build",
     "package": "vsce package --allow-missing-repository"
@@ -74,7 +76,8 @@
     "eslint-plugin-prettier": "^5.5.4",
     "prettier": "^3.9.6",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.69.0"
+    "typescript-eslint": "^8.69.0",
+    "vitest": "^4.1.11"
   },
   "files": [
     "out",
