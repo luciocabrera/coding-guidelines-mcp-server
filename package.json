@@ -61,7 +61,8 @@
     "demo": "npm run build:mcp && node scripts/record-demo.mjs",
     "watch": "tsc -p src/extension/tsconfig.json --watch",
     "vscode:prepublish": "npm run build",
-    "package": "vsce package --readme-path docs/extension-readme.md"
+    "build:vsix": "npm run build && vsce package --readme-path docs/extension-readme.md",
+    "package": "npm run build:vsix"
   },
   "keywords": [
     "chat",

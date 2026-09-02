@@ -150,7 +150,15 @@ Requires **VS Code 1.134 or newer** (`engines.vscode`). The extension is a chat
 participant, and the Copilot MCP integration above needs 1.102+, so a recent
 VS Code was already implied.
 
-Install one of the `.vsix` packages, then use `@guidelines` in VS Code Chat:
+Build the package, then install it:
+
+```bash
+npm run build:vsix
+code --install-extension coding-guidelines-agent-1.0.0.vsix
+```
+
+The `.vsix` is not committed to the repository — it is built from source, and CI
+attaches one to every tagged release. Then use `@guidelines` in VS Code Chat:
 
 ```
 @guidelines /search StyleX

@@ -6,3 +6,7 @@ coverage
 *.log
 .idea
 .vscode
+
+# Build output — reproduce with `npm run build`
+out
+*.vsix
