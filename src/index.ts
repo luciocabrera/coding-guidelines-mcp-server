@@ -4,7 +4,7 @@ import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { loadGuidelines } from './config/guidelines-manifest.js';
+import { loadManifest } from './config/guidelines-manifest.js';
 import { registerResourceHandlers } from './resources/index.js';
 import { registerToolHandlers } from './tools/index.js';
 
@@ -36,15 +36,16 @@ const server = new Server(
 async function main() {
   // Which documents are served comes from the manifest in GUIDELINES_PATH, so a
   // different guideline set is a different directory — no code change required.
-  const guidelines = await loadGuidelines(GUIDELINES_PATH);
+  const { guidelines, validationRules } = await loadManifest(GUIDELINES_PATH);
 
   registerResourceHandlers(server, GUIDELINES_PATH, guidelines);
-  registerToolHandlers(server, GUIDELINES_PATH, guidelines);
+  registerToolHandlers(server, GUIDELINES_PATH, guidelines, validationRules);
 
   const transport = new StdioServerTransport();
   await server.connect(transport);
   console.error(
-    `Coding Guidelines MCP Server running on stdio (${guidelines.length} guidelines from ${GUIDELINES_PATH})`,
+    `Coding Guidelines MCP Server running on stdio (${guidelines.length} guidelines, ` +
+      `${Object.keys(validationRules).length} validation categories, from ${GUIDELINES_PATH})`,
   );
 }
 

@@ -10,7 +10,8 @@
 import { readFile } from 'fs/promises';
 import { join } from 'path';
 
-import type { Guideline } from '../types.js';
+import type { Guideline, ValidationRule, ValidationRules } from '../types.js';
+import { DEFAULT_VALIDATION_RULES } from './validation-rules.js';
 
 /** Filename of the manifest expected inside every guidelines directory. */
 export const MANIFEST_FILENAME = 'guidelines.config.json';
@@ -37,13 +38,92 @@ const requireString = (value: unknown, field: string, index: number): string => 
   return value;
 };
 
+/** Compile one regex from the manifest, naming the category if it is invalid. */
+const compilePattern = (pattern: unknown, category: string, field: string): RegExp => {
+  if (typeof pattern !== 'string' || pattern === '') {
+    throw new Error(
+      `${MANIFEST_FILENAME} is invalid: categories.${category}.${field} must contain non-empty strings`,
+    );
+  }
+  try {
+    return new RegExp(pattern);
+  } catch (error) {
+    throw new Error(
+      `${MANIFEST_FILENAME} is invalid: categories.${category}.${field} contains an invalid ` +
+        `regular expression ${JSON.stringify(pattern)}: ` +
+        `${error instanceof Error ? error.message : String(error)}`,
+      { cause: error },
+    );
+  }
+};
+
+const compilePatternList = (value: unknown, category: string, field: string): RegExp[] => {
+  if (!Array.isArray(value)) {
+    throw new Error(
+      `${MANIFEST_FILENAME} is invalid: categories.${category}.${field} must be an array of strings`,
+    );
+  }
+  return value.map((pattern) => compilePattern(pattern, category, field));
+};
+
+/**
+ * Parse the optional `categories` block and merge it over the built-in rules.
+ *
+ * Merging rather than replacing keeps validate_code_pattern's advertised enum
+ * stable for clients that already prompt against the shipped categories, while
+ * letting a fork add its own taxonomy or redefine one by name.
+ */
+function parseValidationRules(raw: unknown): ValidationRules {
+  if (raw === undefined) {
+    return { ...DEFAULT_VALIDATION_RULES };
+  }
+  if (!isRecord(raw)) {
+    throw new Error(`${MANIFEST_FILENAME} is invalid: "categories" must be an object`);
+  }
+
+  const merged: ValidationRules = { ...DEFAULT_VALIDATION_RULES };
+
+  for (const [category, definition] of Object.entries(raw)) {
+    if (!isRecord(definition)) {
+      throw new Error(`${MANIFEST_FILENAME} is invalid: categories.${category} must be an object`);
+    }
+    if (typeof definition.advice !== 'string' || definition.advice.trim() === '') {
+      throw new Error(
+        `${MANIFEST_FILENAME} is invalid: categories.${category}.advice must be a non-empty string`,
+      );
+    }
+
+    const rule: ValidationRule = {
+      patterns: compilePatternList(definition.patterns ?? [], category, 'patterns'),
+      antiPatterns: compilePatternList(definition.antiPatterns ?? [], category, 'antiPatterns'),
+      advice: definition.advice,
+    };
+
+    if (rule.patterns.length === 0 && rule.antiPatterns.length === 0) {
+      throw new Error(
+        `${MANIFEST_FILENAME} is invalid: categories.${category} needs at least one pattern or antiPattern`,
+      );
+    }
+
+    merged[category] = rule;
+  }
+
+  return merged;
+}
+
+/** Everything a server instance needs from a guidelines directory. */
+export type GuidelinesConfig = {
+  guidelines: Guideline[];
+  validationRules: ValidationRules;
+};
+
 /**
  * Read and validate the manifest in `guidelinesPath`.
  *
  * Throws with an actionable message rather than returning a partial set — a
  * mistyped filename should fail at startup, not silently drop a resource.
  */
-export async function loadGuidelines(guidelinesPath: string): Promise<Guideline[]> {
+export async function loadManifest(guidelinesPath: string): Promise<GuidelinesConfig> {
   const manifestPath = join(guidelinesPath, MANIFEST_FILENAME);
 
   let raw: string;
@@ -98,5 +178,10 @@ export async function loadGuidelines(guidelinesPath: string): Promise<Guideline[
     throw new Error(`${manifestPath} declares the uri "${duplicateUri.uri}" more than once`);
   }
 
-  return guidelines;
+  return { guidelines, validationRules: parseValidationRules(parsed.categories) };
+}
+
+/** Convenience wrapper for callers that only need the document list. */
+export async function loadGuidelines(guidelinesPath: string): Promise<Guideline[]> {
+  return (await loadManifest(guidelinesPath)).guidelines;
 }

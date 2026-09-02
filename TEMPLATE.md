@@ -76,17 +76,49 @@ Nothing under `src/`. Adding, removing or renaming documents is a manifest edit.
 URIs, filenames and document count — the integration suite boots the real server
 against it, so the claim on this page is tested rather than asserted.
 
-## What you may want to touch
+## Defining your own validation categories
 
-`validate_code_pattern`'s categories — `component`, `styling`, `types`,
-`testing`, `file-structure` — are still defined in
-[`src/config/validation-rules.ts`](src/config/validation-rules.ts) as regex
-pattern/anti-pattern pairs. They encode React/TypeScript/StyleX opinions. If
-your taxonomy differs, edit that file; the categories are a compile-time union
-in `src/types.ts`, so the compiler will point you at everything that needs
-updating.
+`validate_code_pattern` ships with five categories — `component`, `styling`,
+`types`, `testing`, `file-structure` — encoding React/TypeScript/StyleX
+opinions. Add your own, or redefine one, with a `categories` block in the same
+manifest:
 
-Making these config-driven too is deliberately **not** done here: it would move
-the category list from a checked type into runtime data and change the tool's
-declared input schema, which is a public contract change. See
-[`docs/adr/0002-guidelines-as-configuration.md`](docs/adr/0002-guidelines-as-configuration.md).
+```json
+{
+  "guidelines": [...],
+  "categories": {
+    "docstrings": {
+      "patterns": ["\"\"\"[\\s\\S]*?\"\"\""],
+      "antiPatterns": ["^def \\w+\\([^)]*\\):\\s*$"],
+      "advice": "Every public function needs a docstring."
+    }
+  }
+}
+```
+
+| Field          | Required       | Notes                                                       |
+| -------------- | -------------- | ----------------------------------------------------------- |
+| `patterns`     | one of the two | Regex strings. Matching any means the snippet looks right.  |
+| `antiPatterns` | one of the two | Matching any triggers `advice`.                             |
+| `advice`       | yes            | Shown when an anti-pattern matches. Say what to do instead. |
+
+Your categories are **merged over** the built-ins, not swapped for them. So
+`component` still works after you add `docstrings`, and a client that already
+prompts for the shipped categories keeps working. Use the same name as a
+built-in to override it.
+
+Two things to know about regexes here:
+
+- JSON needs the backslashes doubled — `\\s`, `\\(` — and has no comments, so
+  `advice` is the only place to explain intent.
+- They are compiled when the server starts. An invalid pattern fails startup
+  naming the category, the field and the pattern, rather than silently never
+  matching. A category with neither `patterns` nor `antiPatterns` is rejected,
+  since it could never report anything.
+
+`tests/fixtures/alt-guidelines/guidelines.config.json` is a working example that
+adds two categories and overrides a third; the integration suite runs the real
+server against it.
+
+See [`docs/adr/0003-configurable-validation-categories.md`](docs/adr/0003-configurable-validation-categories.md)
+for why merging rather than replacing.

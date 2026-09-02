@@ -1,12 +1,15 @@
 /**
  * Validate Code Pattern Tool
- * Validates code snippets against established coding guidelines
+ * Validates code snippets against the loaded category rules.
  */
 
-import type { ValidateCodePatternArgs } from '../types.js';
-import { VALIDATION_RULES } from '../config/validation-rules.js';
+import type { ValidateCodePatternArgs, ValidationRules } from '../types.js';
 
-export const validateCodePatternTool = {
+/**
+ * The advertised categories depend on the loaded rules, so the tool definition
+ * is built per server rather than declared as a module-level constant.
+ */
+export const createValidateCodePatternTool = (rules: ValidationRules) => ({
   name: 'validate_code_pattern',
   description: 'Check if a code pattern follows the established guidelines',
   inputSchema: {
@@ -19,30 +22,30 @@ export const validateCodePatternTool = {
       category: {
         type: 'string',
         description: 'Category to validate against',
-        enum: ['component', 'styling', 'types', 'testing', 'file-structure'] as const,
+        enum: Object.keys(rules),
       },
     },
     required: ['code', 'category'],
   },
-};
+});
 
-export function handleValidateCodePattern(args: ValidateCodePatternArgs) {
+export function handleValidateCodePattern(rules: ValidationRules, args: ValidateCodePatternArgs) {
   const { code, category } = args;
 
-  const rules = VALIDATION_RULES[category];
-  if (!rules) {
+  const rule = rules[category];
+  if (!rule) {
     return {
       content: [
         {
           type: 'text',
-          text: `Unknown category: ${category}. Valid categories: ${Object.keys(VALIDATION_RULES).join(', ')}`,
+          text: `Unknown category: ${category}. Valid categories: ${Object.keys(rules).join(', ')}`,
         },
       ],
     };
   }
 
-  const hasGoodPattern = rules.patterns.some((p) => p.test(code));
-  const hasAntiPattern = rules.antiPatterns.some((p) => p.test(code));
+  const hasGoodPattern = rule.patterns.some((p) => p.test(code));
+  const hasAntiPattern = rule.antiPatterns.some((p) => p.test(code));
 
   let result = `**Validation for ${category}:**\n\n`;
   if (hasGoodPattern && !hasAntiPattern) {
@@ -50,7 +53,7 @@ export function handleValidateCodePattern(args: ValidateCodePatternArgs) {
   } else {
     result += '⚠️  Issues found:\n';
     if (hasAntiPattern) {
-      result += `- ${rules.advice}\n`;
+      result += `- ${rule.advice}\n`;
     }
     if (!hasGoodPattern) {
       result += `- Missing recommended patterns for ${category}\n`;

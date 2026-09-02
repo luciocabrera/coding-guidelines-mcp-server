@@ -12,5 +12,22 @@
       "description": "DEMO FIXTURE — REST conventions",
       "file": "api-design.md"
     }
-  ]
+  ],
+  "categories": {
+    "docstrings": {
+      "patterns": ["\"\"\"[\\s\\S]*?\"\"\""],
+      "antiPatterns": ["^def \\w+\\([^)]*\\):\\s*$"],
+      "advice": "Every public function needs a docstring."
+    },
+    "type-hints": {
+      "patterns": ["def \\w+\\([^)]*: \\w+"],
+      "antiPatterns": ["def \\w+\\([a-z_]+\\)"],
+      "advice": "Annotate parameters and return types."
+    },
+    "types": {
+      "patterns": ["TypedDict", "dataclass"],
+      "antiPatterns": ["Dict\\[str, Any\\]"],
+      "advice": "Prefer TypedDict or dataclass over untyped dicts."
+    }
+  }
 }

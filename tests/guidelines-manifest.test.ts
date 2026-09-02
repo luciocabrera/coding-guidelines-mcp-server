@@ -3,7 +3,12 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-import { loadGuidelines, MANIFEST_FILENAME } from '../src/config/guidelines-manifest.js';
+import {
+  loadGuidelines,
+  loadManifest,
+  MANIFEST_FILENAME,
+} from '../src/config/guidelines-manifest.js';
+import { DEFAULT_VALIDATION_RULES } from '../src/config/validation-rules.js';
 import { ALT_GUIDELINES_PATH, FIXTURE_GUIDELINES_PATH } from './helpers.js';
 
 /** Write a manifest with arbitrary contents into a throwaway directory. */
@@ -95,5 +100,91 @@ describe('guideline manifest', () => {
     );
 
     await expect(loadGuidelines(dir)).rejects.toThrow(/declares the uri "a:\/\/b" more than once/);
+  });
+});
+
+describe('validation categories from the manifest', () => {
+  it('uses the built-in rules when the manifest declares no categories', async () => {
+    const { validationRules } = await loadManifest(FIXTURE_GUIDELINES_PATH);
+
+    expect(Object.keys(validationRules).sort()).toEqual([
+      'component',
+      'file-structure',
+      'styling',
+      'testing',
+      'types',
+    ]);
+  });
+
+  it('adds manifest categories alongside the built-in ones', async () => {
+    const { validationRules } = await loadManifest(ALT_GUIDELINES_PATH);
+
+    // The built-ins survive, so a client prompting for 'component' still works...
+    expect(validationRules.component).toBeDefined();
+    expect(validationRules.styling).toBeDefined();
+    // ...and the fixture's own taxonomy is available too.
+    expect(validationRules.docstrings).toBeDefined();
+    expect(validationRules['type-hints']).toBeDefined();
+  });
+
+  it('lets a manifest override a built-in category by name', async () => {
+    const { validationRules } = await loadManifest(ALT_GUIDELINES_PATH);
+
+    // 'types' exists by default with TypeScript advice; the fixture redefines it.
+    expect(validationRules.types?.advice).toBe('Prefer TypedDict or dataclass over untyped dicts.');
+    expect(DEFAULT_VALIDATION_RULES.types.advice).toContain("Prefer 'type' over 'interface'");
+  });
+
+  it('compiles manifest patterns into working regular expressions', async () => {
+    const { validationRules } = await loadManifest(ALT_GUIDELINES_PATH);
+
+    const docstrings = validationRules.docstrings;
+    expect(docstrings?.patterns[0]?.test('"""Return the thing."""')).toBe(true);
+    expect(docstrings?.antiPatterns[0]?.test('def thing(a, b):')).toBe(true);
+  });
+
+  it('does not mutate the built-in rules when a manifest overrides one', async () => {
+    await loadManifest(ALT_GUIDELINES_PATH);
+
+    expect(DEFAULT_VALIDATION_RULES.types.advice).toContain("Prefer 'type' over 'interface'");
+  });
+
+  it('rejects a category with an invalid regular expression, naming the field', async () => {
+    const dir = await manifestDir(
+      JSON.stringify({
+        guidelines: [{ uri: 'a://b', name: 'One', description: 'ok', file: 'one.md' }],
+        categories: { broken: { patterns: ['('], advice: 'nope' } },
+      }),
+    );
+
+    await expect(loadManifest(dir)).rejects.toThrow(
+      /categories\.broken\.patterns contains an invalid regular expression/,
+    );
+  });
+
+  it('rejects a category with no advice', async () => {
+    const dir = await manifestDir(
+      JSON.stringify({
+        guidelines: [{ uri: 'a://b', name: 'One', description: 'ok', file: 'one.md' }],
+        categories: { thing: { patterns: ['x'] } },
+      }),
+    );
+
+    await expect(loadManifest(dir)).rejects.toThrow(
+      /categories\.thing\.advice must be a non-empty string/,
+    );
+  });
+
+  it('rejects a category with no patterns at all, which would match nothing', async () => {
+    const dir = await manifestDir(
+      JSON.stringify({
+        guidelines: [{ uri: 'a://b', name: 'One', description: 'ok', file: 'one.md' }],
+        categories: { empty: { advice: 'says nothing' } },
+      }),
+    );
+
+    await expect(loadManifest(dir)).rejects.toThrow(
+      /categories\.empty needs at least one pattern or antiPattern/,
+    );
   });
 });

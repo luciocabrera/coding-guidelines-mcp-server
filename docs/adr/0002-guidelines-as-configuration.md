@@ -53,6 +53,11 @@ not silently serve four documents where five were expected.
 
 ## The open question: validation categories
 
+> **Resolved** by [ADR 3](0003-configurable-validation-categories.md), which
+> makes categories configurable by merging a manifest's `categories` block over
+> the built-in rules — keeping the advertised enum stable for existing clients.
+> The analysis below is retained as the reasoning that led there.
+
 `validate_code_pattern`'s five categories — `component`, `styling`, `types`,
 `testing`, `file-structure` — remain hardcoded in
 `src/config/validation-rules.ts`, as a compile-time union in `src/types.ts`.
