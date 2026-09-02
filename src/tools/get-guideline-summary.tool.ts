@@ -4,10 +4,13 @@
  */
 
 import type { Guideline } from '../types.js';
-import { GUIDELINES } from '../resources/index.js';
 import { readGuidelineFile } from '../utils/index.js';
 
-export const getGuidelineSummaryTool = {
+/**
+ * The tool definition depends on which guidelines are loaded, so it is built
+ * per-server rather than declared as a module-level constant.
+ */
+export const createGetGuidelineSummaryTool = (guidelines: readonly Guideline[]) => ({
   name: 'get_guideline_summary',
   description: 'Get a summary or specific section from a guideline document',
   inputSchema: {
@@ -16,7 +19,7 @@ export const getGuidelineSummaryTool = {
       guideline: {
         type: 'string',
         description: 'Name of the guideline document',
-        enum: GUIDELINES.map((g: Guideline) => g.name),
+        enum: guidelines.map((g) => g.name),
       },
       section: {
         type: 'string',
@@ -25,21 +28,22 @@ export const getGuidelineSummaryTool = {
     },
     required: ['guideline'],
   },
-};
+});
 
 export async function handleGetGuidelineSummary(
   guidelinesPath: string,
+  guidelines: readonly Guideline[],
   args: { guideline: string; section?: string },
 ) {
   const { guideline: guidelineName, section } = args;
 
-  const guideline = GUIDELINES.find((g: Guideline) => g.name === guidelineName);
+  const guideline = guidelines.find((g) => g.name === guidelineName);
   if (!guideline) {
     return {
       content: [
         {
           type: 'text',
-          text: `Guideline not found: ${guidelineName}. Available: ${GUIDELINES.map((g: Guideline) => g.name).join(', ')}`,
+          text: `Guideline not found: ${guidelineName}. Available: ${guidelines.map((g) => g.name).join(', ')}`,
         },
       ],
     };

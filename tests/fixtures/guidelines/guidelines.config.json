@@ -1,0 +1,39 @@
+{
+  "guidelines": [
+    {
+      "uri": "guidelines://coding-guidelines",
+      "name": "Coding Guidelines",
+      "description": "Comprehensive coding guidelines for React, TypeScript, StyleX",
+      "mimeType": "text/markdown",
+      "file": "coding-guidelines.md"
+    },
+    {
+      "uri": "guidelines://enterprise-standards",
+      "name": "Enterprise Coding Standards",
+      "description": "Enterprise-level coding standards document",
+      "mimeType": "text/markdown",
+      "file": "enterprise_coding_standards.md"
+    },
+    {
+      "uri": "guidelines://testing-guide",
+      "name": "Testing Guide",
+      "description": "Standards and best practices for testing",
+      "mimeType": "text/markdown",
+      "file": "testing_guide.md"
+    },
+    {
+      "uri": "guidelines://e2e-testing",
+      "name": "E2E Testing Guide",
+      "description": "End-to-end testing guide with Playwright",
+      "mimeType": "text/markdown",
+      "file": "e2e_testing_guide.md"
+    },
+    {
+      "uri": "guidelines://complete-setup",
+      "name": "Complete Setup Guide",
+      "description": "Complete project setup guide",
+      "mimeType": "text/markdown",
+      "file": "complete_setup_guide.md"
+    }
+  ]
+}

@@ -1,11 +1,13 @@
 /**
- * Tools Index
- * Exports all tools and the main handler registration
+ * Tools
+ * Exports the tool set and registers the MCP tool handlers.
  */
 
 import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
 import type { Server } from '@modelcontextprotocol/sdk/server/index.js';
+
 import type {
+  Guideline,
   SearchGuidelinesArgs,
   ValidateCodePatternArgs,
   GenerateCodeArgs,
@@ -18,28 +20,36 @@ import {
   handleValidateCodePattern,
 } from './validate-code-pattern.tool.js';
 import {
-  getGuidelineSummaryTool,
+  createGetGuidelineSummaryTool,
   handleGetGuidelineSummary,
 } from './get-guideline-summary.tool.js';
 import { generateCodeTool, handleGenerateCode } from './generate-code.tool.js';
 
-// Export all tools for easy access
-export const ALL_TOOLS = [
+/**
+ * Build the tool list for a given guideline set. get_guideline_summary
+ * enumerates the loaded document names in its schema, so the list depends on
+ * the manifest rather than being a module-level constant.
+ */
+export const buildTools = (guidelines: readonly Guideline[]) => [
   searchGuidelinesTool,
   validateCodePatternTool,
-  getGuidelineSummaryTool,
+  createGetGuidelineSummaryTool(guidelines),
   generateCodeTool,
 ];
 
 /**
  * Register all tool handlers with the MCP server
  */
-export function registerToolHandlers(server: Server, guidelinesPath: string): void {
+export function registerToolHandlers(
+  server: Server,
+  guidelinesPath: string,
+  guidelines: readonly Guideline[],
+): void {
+  const tools = buildTools(guidelines);
+
   // List available tools
   server.setRequestHandler(ListToolsRequestSchema, () => {
-    return {
-      tools: ALL_TOOLS,
-    };
+    return { tools };
   });
 
   // Handle tool calls
@@ -48,7 +58,11 @@ export function registerToolHandlers(server: Server, guidelinesPath: string): vo
 
     switch (name) {
       case 'search_guidelines':
-        return await handleSearchGuidelines(guidelinesPath, args as SearchGuidelinesArgs);
+        return await handleSearchGuidelines(
+          guidelinesPath,
+          guidelines,
+          args as SearchGuidelinesArgs,
+        );
 
       case 'validate_code_pattern':
         return handleValidateCodePattern(args as ValidateCodePatternArgs);
@@ -56,6 +70,7 @@ export function registerToolHandlers(server: Server, guidelinesPath: string): vo
       case 'get_guideline_summary':
         return await handleGetGuidelineSummary(
           guidelinesPath,
+          guidelines,
           args as { guideline: string; section?: string },
         );
 

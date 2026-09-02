@@ -1,0 +1,99 @@
+import { mkdtemp, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { describe, expect, it } from 'vitest';
+
+import { loadGuidelines, MANIFEST_FILENAME } from '../src/config/guidelines-manifest.js';
+import { ALT_GUIDELINES_PATH, FIXTURE_GUIDELINES_PATH } from './helpers.js';
+
+/** Write a manifest with arbitrary contents into a throwaway directory. */
+const manifestDir = async (contents: string): Promise<string> => {
+  const dir = await mkdtemp(join(tmpdir(), 'guidelines-manifest-'));
+  await writeFile(join(dir, MANIFEST_FILENAME), contents, 'utf-8');
+  return dir;
+};
+
+describe('guideline manifest', () => {
+  it('loads every entry declared in the manifest', async () => {
+    const guidelines = await loadGuidelines(FIXTURE_GUIDELINES_PATH);
+
+    expect(guidelines).toHaveLength(5);
+    expect(guidelines[0]).toEqual({
+      uri: 'guidelines://coding-guidelines',
+      name: 'Coding Guidelines',
+      description: 'Comprehensive coding guidelines for React, TypeScript, StyleX',
+      mimeType: 'text/markdown',
+      file: 'coding-guidelines.md',
+    });
+  });
+
+  it('loads a completely different guideline set from a different directory', async () => {
+    const guidelines = await loadGuidelines(ALT_GUIDELINES_PATH);
+
+    expect(guidelines).toHaveLength(2);
+    expect(guidelines.map((g) => g.uri)).toEqual([
+      'standards://python-style',
+      'standards://api-design',
+    ]);
+  });
+
+  it('defaults mimeType to text/markdown when omitted', async () => {
+    const guidelines = await loadGuidelines(ALT_GUIDELINES_PATH);
+
+    expect(guidelines.every((g) => g.mimeType === 'text/markdown')).toBe(true);
+  });
+
+  it('fails with an actionable message when the manifest is missing', async () => {
+    await expect(loadGuidelines('/nonexistent/guidelines/path')).rejects.toThrow(
+      /No guidelines\.config\.json found in/,
+    );
+  });
+
+  it('fails when the manifest is not valid JSON', async () => {
+    const dir = await manifestDir('{ not json');
+
+    await expect(loadGuidelines(dir)).rejects.toThrow(/is not valid JSON/);
+  });
+
+  it('fails when the manifest has no guidelines array', async () => {
+    const dir = await manifestDir(JSON.stringify({ docs: [] }));
+
+    await expect(loadGuidelines(dir)).rejects.toThrow(
+      /must be an object with a "guidelines" array/,
+    );
+  });
+
+  it('fails when the manifest lists nothing', async () => {
+    const dir = await manifestDir(JSON.stringify({ guidelines: [] }));
+
+    await expect(loadGuidelines(dir)).rejects.toThrow(/lists no guidelines/);
+  });
+
+  it('names the offending entry and field when one is malformed', async () => {
+    const dir = await manifestDir(
+      JSON.stringify({
+        guidelines: [
+          { uri: 'a://b', name: 'Fine', description: 'ok', file: 'a.md' },
+          { uri: 'a://c', name: 'Missing file', description: 'ok' },
+        ],
+      }),
+    );
+
+    await expect(loadGuidelines(dir)).rejects.toThrow(
+      /guidelines\[1\]\.file must be a non-empty string/,
+    );
+  });
+
+  it('rejects duplicate URIs, which would silently shadow a document', async () => {
+    const dir = await manifestDir(
+      JSON.stringify({
+        guidelines: [
+          { uri: 'a://b', name: 'One', description: 'ok', file: 'one.md' },
+          { uri: 'a://b', name: 'Two', description: 'ok', file: 'two.md' },
+        ],
+      }),
+    );
+
+    await expect(loadGuidelines(dir)).rejects.toThrow(/declares the uri "a:\/\/b" more than once/);
+  });
+});

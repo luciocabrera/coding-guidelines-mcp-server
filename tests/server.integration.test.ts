@@ -3,7 +3,7 @@ import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
-import { FIXTURE_GUIDELINES_PATH, REPO_ROOT } from './helpers.js';
+import { ALT_GUIDELINES_PATH, FIXTURE_GUIDELINES_PATH, REPO_ROOT } from './helpers.js';
 
 const SERVER_PATH = join(REPO_ROOT, 'build', 'index.js');
 
@@ -25,10 +25,10 @@ class ServerHarness {
   private nextId = 0;
   readonly unparsed: string[] = [];
 
-  constructor() {
+  constructor(guidelinesPath: string = FIXTURE_GUIDELINES_PATH) {
     this.child = spawn('node', [SERVER_PATH], {
       stdio: ['pipe', 'pipe', 'pipe'],
-      env: { ...process.env, GUIDELINES_PATH: FIXTURE_GUIDELINES_PATH },
+      env: { ...process.env, GUIDELINES_PATH: guidelinesPath },
     });
 
     this.child.stdout.setEncoding('utf8');
@@ -201,5 +201,66 @@ describe('MCP server over stdio', () => {
     // The server must still be alive and answering afterwards.
     const followUp = await server.send('resources/list');
     expect((followUp.result?.resources as unknown[]).length).toBe(5);
+  });
+});
+
+describe('swapping in a different guideline set', () => {
+  // The Phase 5 claim, exercised end to end: this directory shares no URIs, no
+  // filenames and not even the same count with the default set, and the only
+  // thing that changes is GUIDELINES_PATH. No source edit, no rebuild.
+  let server: ServerHarness;
+
+  beforeAll(async () => {
+    server = new ServerHarness(ALT_GUIDELINES_PATH);
+    const initialize = await server.send('initialize', {
+      protocolVersion: '2024-11-05',
+      capabilities: {},
+      clientInfo: { name: 'vitest', version: '1.0.0' },
+    });
+    expect(initialize.error).toBeUndefined();
+    server.notify('notifications/initialized');
+  });
+
+  afterAll(() => server?.stop());
+
+  it("serves the alternate set's resources instead of the default ones", async () => {
+    const response = await server.send('resources/list');
+
+    const resources = response.result?.resources as Array<{ uri: string; name: string }>;
+    expect(resources.map((r) => r.uri)).toEqual([
+      'standards://python-style',
+      'standards://api-design',
+    ]);
+  });
+
+  it('reads a document from the alternate set', async () => {
+    const response = await server.send('resources/read', { uri: 'standards://api-design' });
+
+    const contents = response.result?.contents as Array<{ text: string }>;
+    expect(contents[0]?.text).toContain('Never break a released shape.');
+  });
+
+  it('advertises the alternate document names in get_guideline_summary', async () => {
+    const response = await server.send('tools/list');
+
+    const tools = response.result?.tools as Array<{
+      name: string;
+      inputSchema: { properties: { guideline: { enum: string[] } } };
+    }>;
+    const summaryTool = tools.find((t) => t.name === 'get_guideline_summary');
+    expect(summaryTool?.inputSchema.properties.guideline.enum).toEqual([
+      'Python Style',
+      'API Design',
+    ]);
+  });
+
+  it('searches the alternate set', async () => {
+    const response = await server.send('tools/call', {
+      name: 'search_guidelines',
+      arguments: { query: 'ruff' },
+    });
+
+    const content = response.result?.content as Array<{ text: string }>;
+    expect(content[0]?.text).toContain('Python Style');
   });
 });

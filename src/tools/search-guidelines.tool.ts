@@ -3,8 +3,7 @@
  * Searches for specific patterns across all guideline documents
  */
 
-import type { SearchGuidelinesArgs, SearchResult } from '../types.js';
-import { GUIDELINES } from '../resources/index.js';
+import type { Guideline, SearchGuidelinesArgs, SearchResult } from '../types.js';
 import { searchInGuideline, formatSearchResults } from '../utils/index.js';
 
 export const searchGuidelinesTool = {
@@ -22,11 +21,15 @@ export const searchGuidelinesTool = {
   },
 };
 
-export async function handleSearchGuidelines(guidelinesPath: string, args: SearchGuidelinesArgs) {
+export async function handleSearchGuidelines(
+  guidelinesPath: string,
+  guidelines: readonly Guideline[],
+  args: SearchGuidelinesArgs,
+) {
   const { query } = args;
   const results: SearchResult[] = [];
 
-  for (const guideline of GUIDELINES) {
+  for (const guideline of guidelines) {
     const result = await searchInGuideline(guidelinesPath, guideline, query);
     if (result) {
       results.push(result);

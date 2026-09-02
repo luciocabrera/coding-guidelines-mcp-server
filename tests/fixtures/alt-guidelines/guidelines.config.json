@@ -1,0 +1,16 @@
+{
+  "guidelines": [
+    {
+      "uri": "standards://python-style",
+      "name": "Python Style",
+      "description": "DEMO FIXTURE — a different org's guideline set, with different URIs and files",
+      "file": "python-style.md"
+    },
+    {
+      "uri": "standards://api-design",
+      "name": "API Design",
+      "description": "DEMO FIXTURE — REST conventions",
+      "file": "api-design.md"
+    }
+  ]
+}

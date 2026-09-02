@@ -6,6 +6,9 @@ const here = dirname(fileURLToPath(import.meta.url));
 /** Guideline set used by the unit tests — small, controlled, and not the real docs. */
 export const FIXTURE_GUIDELINES_PATH = join(here, 'fixtures', 'guidelines');
 
+/** A structurally different guideline set — different URIs, files and count. */
+export const ALT_GUIDELINES_PATH = join(here, 'fixtures', 'alt-guidelines');
+
 /** Repository root, for locating the built server. */
 export const REPO_ROOT = join(here, '..');
 
