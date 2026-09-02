@@ -1,10 +1,13 @@
 import { describe, expect, it } from 'vitest';
 
 import { handleSearchGuidelines } from '../src/tools/search-guidelines.tool.js';
+import { loadGuidelines } from '../src/config/guidelines-manifest.js';
 import { FIXTURE_GUIDELINES_PATH, textOf } from './helpers.js';
 
+const guidelines = await loadGuidelines(FIXTURE_GUIDELINES_PATH);
+
 const search = async (query: string) =>
-  textOf(await handleSearchGuidelines(FIXTURE_GUIDELINES_PATH, { query }));
+  textOf(await handleSearchGuidelines(FIXTURE_GUIDELINES_PATH, guidelines, { query }));
 
 describe('search_guidelines', () => {
   it('finds an exact term and reports the documents it appears in', async () => {
@@ -51,7 +54,9 @@ describe('search_guidelines', () => {
 
   it('returns no results rather than throwing when the guidelines path is missing', async () => {
     const result = textOf(
-      await handleSearchGuidelines('/nonexistent/guidelines/path', { query: 'StyleX' }),
+      await handleSearchGuidelines('/nonexistent/guidelines/path', guidelines, {
+        query: 'StyleX',
+      }),
     );
 
     expect(result).toBe('No results found for "StyleX"');
