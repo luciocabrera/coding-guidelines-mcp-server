@@ -8,7 +8,7 @@
  */
 
 import { readFile } from 'fs/promises';
-import { join } from 'path';
+import { isAbsolute, join, relative, resolve } from 'path';
 
 import type { Guideline, ValidationRule, ValidationRules } from '../types.js';
 import { DEFAULT_VALIDATION_RULES } from './validation-rules.js';
@@ -29,6 +29,26 @@ type RawGuideline = {
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
 
+/**
+ * Reject a `file` that escapes the guidelines directory.
+ *
+ * Manifests are configuration, but a guideline set can travel between people —
+ * a `file` of "../../.ssh/id_rsa" would otherwise turn resources/read into an
+ * arbitrary-file-read primitive for anyone who can get a manifest adopted.
+ */
+const requireContainedFile = (file: string, guidelinesPath: string, index: number): string => {
+  const root = resolve(guidelinesPath);
+  const target = resolve(root, file);
+  const rel = relative(root, target);
+  if (isAbsolute(file) || rel === '' || rel.startsWith('..')) {
+    throw new Error(
+      `${MANIFEST_FILENAME} is invalid: guidelines[${index}].file ${JSON.stringify(file)} ` +
+        `must be a path inside the guidelines directory`,
+    );
+  }
+  return file;
+};
+
 const requireString = (value: unknown, field: string, index: number): string => {
   if (typeof value !== 'string' || value.trim() === '') {
     throw new Error(
@@ -40,7 +60,7 @@ const requireString = (value: unknown, field: string, index: number): string => 
 
 /** Compile one regex from the manifest, naming the category if it is invalid. */
 const compilePattern = (pattern: unknown, category: string, field: string): RegExp => {
-  if (typeof pattern !== 'string' || pattern === '') {
+  if (typeof pattern !== 'string' || pattern.trim() === '') {
     throw new Error(
       `${MANIFEST_FILENAME} is invalid: categories.${category}.${field} must contain non-empty strings`,
     );
@@ -129,10 +149,20 @@ export async function loadManifest(guidelinesPath: string): Promise<GuidelinesCo
   let raw: string;
   try {
     raw = await readFile(manifestPath, 'utf-8');
-  } catch {
+  } catch (error) {
+    const code = (error as NodeJS.ErrnoException).code;
+    if (code === 'ENOENT') {
+      throw new Error(
+        `No ${MANIFEST_FILENAME} found in ${guidelinesPath}. ` +
+          `Every guidelines directory needs one; see TEMPLATE.md.`,
+        { cause: error },
+      );
+    }
+    // Permission problems, a directory where a file was expected, and so on —
+    // reporting these as "not found" sends people looking for the wrong bug.
     throw new Error(
-      `No ${MANIFEST_FILENAME} found in ${guidelinesPath}. ` +
-        `Every guidelines directory needs one; see TEMPLATE.md.`,
+      `Could not read ${manifestPath}: ${error instanceof Error ? error.message : String(error)}`,
+      { cause: error },
     );
   }
 
@@ -163,7 +193,11 @@ export async function loadManifest(guidelinesPath: string): Promise<GuidelinesCo
       uri: requireString(candidate.uri, 'uri', index),
       name: requireString(candidate.name, 'name', index),
       description: requireString(candidate.description, 'description', index),
-      file: requireString(candidate.file, 'file', index),
+      file: requireContainedFile(
+        requireString(candidate.file, 'file', index),
+        guidelinesPath,
+        index,
+      ),
       mimeType:
         candidate.mimeType === undefined
           ? DEFAULT_MIME_TYPE
@@ -176,6 +210,15 @@ export async function loadManifest(guidelinesPath: string): Promise<GuidelinesCo
   );
   if (duplicateUri) {
     throw new Error(`${manifestPath} declares the uri "${duplicateUri.uri}" more than once`);
+  }
+
+  // get_guideline_summary keys off name, and publishes the list as its input
+  // schema enum, so duplicates make the tool's contract ambiguous.
+  const duplicateName = guidelines.find(
+    (guideline, index) => guidelines.findIndex((other) => other.name === guideline.name) !== index,
+  );
+  if (duplicateName) {
+    throw new Error(`${manifestPath} declares the name "${duplicateName.name}" more than once`);
   }
 
   return { guidelines, validationRules: parseValidationRules(parsed.categories) };

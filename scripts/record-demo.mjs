@@ -74,7 +74,18 @@ async function run() {
     buffer = lines.pop() ?? '';
     for (const line of lines) {
       if (!line.trim()) continue;
-      const message = JSON.parse(line);
+      let message;
+      try {
+        message = JSON.parse(line);
+      } catch {
+        // Not a complete JSON-RPC frame; the next chunk may finish it.
+        continue;
+      }
+      // Notifications carry no id, and an error response carries no result.
+      if (message.id === undefined) continue;
+      if (message.error) {
+        throw new Error(`server returned an error for id ${message.id}: ${message.error.message}`);
+      }
       results.set(message.id, message.result);
     }
   });
@@ -96,7 +107,18 @@ async function run() {
     if (step.request) send(step.request);
   }
 
-  await new Promise((resolve) => setTimeout(resolve, 1500));
+  // Wait for every response we asked for rather than guessing at a duration —
+  // a fixed sleep turns a slow machine into a spurious "no response" failure.
+  const expectedIds = REQUESTS.filter((step) => step.request).map((step) => step.request.id);
+  const deadline = Date.now() + 20_000;
+  while (expectedIds.some((id) => !results.has(id))) {
+    if (Date.now() > deadline) {
+      const missing = expectedIds.filter((id) => !results.has(id));
+      child.kill();
+      throw new Error(`timed out waiting for responses to ids: ${missing.join(', ')}`);
+    }
+    await new Promise((resolve) => setTimeout(resolve, 25));
+  }
   child.kill();
 
   const lines = [];

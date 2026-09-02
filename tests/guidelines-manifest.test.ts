@@ -89,6 +89,67 @@ describe('guideline manifest', () => {
     );
   });
 
+  it('rejects a file path that escapes the guidelines directory', async () => {
+    const dir = await manifestDir(
+      JSON.stringify({
+        guidelines: [{ uri: 'a://b', name: 'Escape', description: 'ok', file: '../../etc/passwd' }],
+      }),
+    );
+
+    await expect(loadGuidelines(dir)).rejects.toThrow(
+      /must be a path inside the guidelines directory/,
+    );
+  });
+
+  it('rejects an absolute file path', async () => {
+    const dir = await manifestDir(
+      JSON.stringify({
+        guidelines: [{ uri: 'a://b', name: 'Absolute', description: 'ok', file: '/etc/passwd' }],
+      }),
+    );
+
+    await expect(loadGuidelines(dir)).rejects.toThrow(
+      /must be a path inside the guidelines directory/,
+    );
+  });
+
+  it('allows a file in a subdirectory of the guidelines directory', async () => {
+    const dir = await manifestDir(
+      JSON.stringify({
+        guidelines: [{ uri: 'a://b', name: 'Nested', description: 'ok', file: 'team/style.md' }],
+      }),
+    );
+
+    const guidelines = await loadGuidelines(dir);
+    expect(guidelines[0]?.file).toBe('team/style.md');
+  });
+
+  it('rejects duplicate names, which make get_guideline_summary ambiguous', async () => {
+    const dir = await manifestDir(
+      JSON.stringify({
+        guidelines: [
+          { uri: 'a://b', name: 'Same', description: 'ok', file: 'one.md' },
+          { uri: 'a://c', name: 'Same', description: 'ok', file: 'two.md' },
+        ],
+      }),
+    );
+
+    await expect(loadGuidelines(dir)).rejects.toThrow(/declares the name "Same" more than once/);
+  });
+
+  it('rejects a whitespace-only pattern', async () => {
+    const dir = await manifestDir(
+      JSON.stringify({
+        guidelines: [{ uri: 'a://b', name: 'One', description: 'ok', file: 'one.md' }],
+        categories: { blank: { patterns: ['   '], advice: 'nope' } },
+      }),
+    );
+
+    await expect(loadManifest(dir)).rejects.toThrow(
+      /categories\.blank\.patterns must contain non-empty strings/,
+    );
+  });
+
   it('rejects duplicate URIs, which would silently shadow a document', async () => {
     const dir = await manifestDir(
       JSON.stringify({

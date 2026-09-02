@@ -5,6 +5,10 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+Nothing yet.
+
 ## [2.0.0] - 2026-09-02
 
 The showcase polish pass.
@@ -50,6 +54,11 @@ is unchanged: same resource URIs, same tool names and schemas.
   artifact.
 - `guidelines.config.json` manifests — the served guideline set is now
   configuration. `GUIDELINES_PATH` points at any self-describing directory.
+- Duplicate guideline `name`s are rejected. `get_guideline_summary` keys off
+  name and publishes the list as its input schema enum, so duplicates made the
+  tool's contract ambiguous.
+- The server version reported over MCP is injected from `package.json` at build
+  time, so the two cannot drift.
 - **Configurable validation categories.** A manifest's optional `categories`
   block merges over the built-in rules, so a fork can add its own taxonomy — or
   override a shipped category by name — without editing `src/`. Merging rather
@@ -82,6 +91,17 @@ is unchanged: same resource URIs, same tool names and schemas.
 
 ### Fixed
 
+- **The VS Code chat agent never performed the MCP `initialize` handshake.**
+  `MCPClient.connect()` resolved on the server's stderr banner, or on a 1s
+  timeout that resolved rather than rejected, without initializing the session.
+  The SDK will not answer `resources/*` or `tools/*` before initialize, so the
+  extension reported itself connected while every subsequent request failed.
+  It now completes the handshake before resolving, and a failed start rejects.
+- **A manifest `file` could escape the guidelines directory.** `../` and
+  absolute paths were accepted verbatim and joined with the guidelines path,
+  making `resources/read` an arbitrary-file-read primitive for anyone who could
+  get a manifest adopted. Paths are now required to resolve inside the
+  directory.
 - **`generate_code` emitted `[object Object]`.** `buildFeatureScaffold`
   interpolated a result object instead of its `.text` into every feature
   scaffold response.
@@ -107,5 +127,6 @@ is unchanged: same resource URIs, same tool names and schemas.
 Initial release: MCP server exposing five guideline documents as resources with
 search, summary, validation and generation tools, plus a VS Code chat agent.
 
+[unreleased]: https://github.com/luciocabrera/coding-guidelines-mcp-server/compare/v2.0.0...HEAD
 [2.0.0]: https://github.com/luciocabrera/coding-guidelines-mcp-server/releases/tag/v2.0.0
 [1.0.0]: https://github.com/luciocabrera/coding-guidelines-mcp-server/releases/tag/v1.0.0

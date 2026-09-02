@@ -106,7 +106,7 @@ printf '%s\n%s\n%s\n' \
   | node build/index.js
 ```
 
-Swap the last line for any other request:
+Swap the third line for any other request — the two handshake lines above it are always needed:
 
 ```bash
 # Read a guideline
@@ -223,7 +223,7 @@ npm run demo        # re-record docs/demo.svg from a live run
 npm run package     # build the .vsix
 ```
 
-Every one of these runs in CI on each pull request, across Node 20 and 22.
+Lint, format, typecheck, build and test run in CI on each pull request, across Node 20 and 22, and the `.vsix` is built there too. `npm run demo` is run by hand when the protocol surface changes.
 
 ## Project layout
 

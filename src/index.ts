@@ -8,6 +8,14 @@ import { loadManifest } from './config/guidelines-manifest.js';
 import { registerResourceHandlers } from './resources/index.js';
 import { registerToolHandlers } from './tools/index.js';
 
+/**
+ * Replaced by esbuild at build time with the version from package.json, so the
+ * version reported over MCP cannot drift from the package. Declared with a
+ * fallback so the module still runs untransformed (vitest, ts-node).
+ */
+declare const __SERVER_VERSION__: string | undefined;
+const SERVER_VERSION = typeof __SERVER_VERSION__ === 'string' ? __SERVER_VERSION__ : '0.0.0-dev';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
@@ -18,7 +26,7 @@ const GUIDELINES_PATH = process.env.GUIDELINES_PATH || join(__dirname, '../guide
 const server = new Server(
   {
     name: 'coding-guidelines-server',
-    version: '2.0.0',
+    version: SERVER_VERSION,
   },
   {
     capabilities: {
