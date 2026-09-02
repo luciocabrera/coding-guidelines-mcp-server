@@ -9,7 +9,7 @@ Delete once the polish pass lands. Captured: 2026-09-01, commit `3f5c970` (only 
 
 Two things shipped from one package:
 
-1. **An MCP server** (`src/index.ts` → esbuild bundle at `build/index.js`) exposing five markdown guideline documents as MCP *resources* and four *tools* over stdio.
+1. **An MCP server** (`src/index.ts` → esbuild bundle at `build/index.js`) exposing five markdown guideline documents as MCP _resources_ and four _tools_ over stdio.
 2. **A VS Code chat-participant extension** (`src/extension/` → `tsc` output at `out/`) that spawns that MCP server as a child process and surfaces it as `@guidelines` in VS Code Chat.
 
 The README documents only #1. The extension is undocumented in the README, though it is what `package.json` describes (`"displayName": "Coding Guidelines Agent"`).
@@ -18,16 +18,16 @@ The README documents only #1. The extension is undocumented in the README, thoug
 
 ### Root config
 
-| File | What it does | Notes |
-|---|---|---|
-| `package.json` | name `coding-guidelines-agent`, v1.0.0, MIT, publisher `coding-guidelines`, `main: ./out/extension.js`. Scripts: `build:mcp`, `build:extension`, `build`, `watch`, `vscode:prepublish`, `package`. | **No `test` script.** `"author": ""`. Single runtime dep: `@modelcontextprotocol/sdk ^1.24.3`. |
-| `tsconfig.json` | Root TS config for `src`, ESNext modules, `strict`, `noUncheckedIndexedAccess`. | Never invoked by any script — nothing runs `tsc -p tsconfig.json`. See §4.1. |
-| `src/extension/tsconfig.json` | CommonJS, `outDir: ../../out`, target ES2022. | This is the only tsconfig a build script uses. |
-| `eslint.config.mjs` | flat config: `eslint.configs.recommended` + `recommendedTypeChecked` + prettier integration, ignores `build/`, `*.js`, `*.mjs`. | **Currently unrunnable.** See §4.2. |
-| `.prettierrc.json` | singleQuote, trailingComma all, printWidth 100, semi. | Source files are actually written with double quotes — prettier has evidently never been run over `src/`. |
-| `.gitignore` | ignores `node_modules`, `dist`, `build`, `coverage`, `*.log`, `.idea`, `.vscode`. | `build/` ignored, **`out/` is not** — see §3. |
-| `LICENSE` | MIT, "Copyright (c) 2025 Coding Guidelines". | Copyright holder is a placeholder org name, not Lucio. Out of scope per ground rule 4. |
-| `README.md` | ~110 lines: features, install, usage, dev, resources, tools, license. | Contains two inaccurate claims — see §4.3 and §4.4. |
+| File                          | What it does                                                                                                                                                                                       | Notes                                                                                                     |
+| ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `package.json`                | name `coding-guidelines-agent`, v1.0.0, MIT, publisher `coding-guidelines`, `main: ./out/extension.js`. Scripts: `build:mcp`, `build:extension`, `build`, `watch`, `vscode:prepublish`, `package`. | **No `test` script.** `"author": ""`. Single runtime dep: `@modelcontextprotocol/sdk ^1.24.3`.            |
+| `tsconfig.json`               | Root TS config for `src`, ESNext modules, `strict`, `noUncheckedIndexedAccess`.                                                                                                                    | Never invoked by any script — nothing runs `tsc -p tsconfig.json`. See §4.1.                              |
+| `src/extension/tsconfig.json` | CommonJS, `outDir: ../../out`, target ES2022.                                                                                                                                                      | This is the only tsconfig a build script uses.                                                            |
+| `eslint.config.mjs`           | flat config: `eslint.configs.recommended` + `recommendedTypeChecked` + prettier integration, ignores `build/`, `*.js`, `*.mjs`.                                                                    | **Currently unrunnable.** See §4.2.                                                                       |
+| `.prettierrc.json`            | singleQuote, trailingComma all, printWidth 100, semi.                                                                                                                                              | Source files are actually written with double quotes — prettier has evidently never been run over `src/`. |
+| `.gitignore`                  | ignores `node_modules`, `dist`, `build`, `coverage`, `*.log`, `.idea`, `.vscode`.                                                                                                                  | `build/` ignored, **`out/` is not** — see §3.                                                             |
+| `LICENSE`                     | MIT, "Copyright (c) 2025 Coding Guidelines".                                                                                                                                                       | Copyright holder is a placeholder org name, not Lucio. Out of scope per ground rule 4.                    |
+| `README.md`                   | ~110 lines: features, install, usage, dev, resources, tools, license.                                                                                                                              | Contains two inaccurate claims — see §4.3 and §4.4.                                                       |
 
 ### `scripts/`
 
@@ -55,15 +55,15 @@ The README documents only #1. The extension is undocumented in the README, thoug
 
 ### `guidelines/` — the content
 
-| File | Size | Exposed as a resource? |
-|---|---|---|
-| `coding-guidelines.md` | 6.5 KB | ✅ `guidelines://coding-guidelines` |
+| File                             | Size    | Exposed as a resource?                 |
+| -------------------------------- | ------- | -------------------------------------- |
+| `coding-guidelines.md`           | 6.5 KB  | ✅ `guidelines://coding-guidelines`    |
 | `enterprise_coding_standards.md` | 38.6 KB | ✅ `guidelines://enterprise-standards` |
-| `testing_guide.md` | 11.7 KB | ✅ `guidelines://testing-guide` |
-| `e2e_testing_guide.md` | 11.7 KB | ✅ `guidelines://e2e-testing` |
-| `complete_setup_guide.md` | 9.6 KB | ✅ `guidelines://complete-setup` |
-| `package_json_config.json` | 3.0 KB | ❌ not registered |
-| `playwright_config.ts` | 2.5 KB | ❌ not registered |
+| `testing_guide.md`               | 11.7 KB | ✅ `guidelines://testing-guide`        |
+| `e2e_testing_guide.md`           | 11.7 KB | ✅ `guidelines://e2e-testing`          |
+| `complete_setup_guide.md`        | 9.6 KB  | ✅ `guidelines://complete-setup`       |
+| `package_json_config.json`       | 3.0 KB  | ❌ not registered                      |
+| `playwright_config.ts`           | 2.5 KB  | ❌ not registered                      |
 
 Content is generic React 19 / TypeScript / StyleX / React Router 7 standards — no client-identifying material. Two files ship in the package but are unreachable through the server.
 
@@ -75,14 +75,14 @@ Content is generic React 19 / TypeScript / StyleX / React Router 7 standards —
 
 Both were **hand-packaged from an older source layout** and neither is reproducible from the current build scripts. There is no `build:vsix` script; `npm run package` runs `vsce package` against whatever is on disk at the time.
 
-| | `coding-guidelines-agent-1.0.0.vsix` | `coding-guidelines-mcp-server-1.0.0.vsix` |
-|---|---|---|
-| manifest `name` | `coding-guidelines-agent` | `coding-guidelines-mcp-server` |
-| manifest `main` | `./out/extension.js` | `./build/extension/extension.js` |
-| manifest `description` | "VS Code Chat Agent with MCP server…" | "MCP server and VS Code Chat Agent…" |
-| contains `out/` | yes | no |
-| contains `build/extension/` | no | yes |
-| `build/index.js` | 654 KB (bundled) | 1.3 KB (unbundled) |
+|                             | `coding-guidelines-agent-1.0.0.vsix`  | `coding-guidelines-mcp-server-1.0.0.vsix` |
+| --------------------------- | ------------------------------------- | ----------------------------------------- |
+| manifest `name`             | `coding-guidelines-agent`             | `coding-guidelines-mcp-server`            |
+| manifest `main`             | `./out/extension.js`                  | `./build/extension/extension.js`          |
+| manifest `description`      | "VS Code Chat Agent with MCP server…" | "MCP server and VS Code Chat Agent…"      |
+| contains `out/`             | yes                                   | no                                        |
+| contains `build/extension/` | no                                    | yes                                       |
+| `build/index.js`            | 654 KB (bundled)                      | 1.3 KB (unbundled)                        |
 
 Evidence they are stale: both contain `build/resources.js`, `build/tools.js` and `build/utils.js` — flat modules that **do not exist in the current `src/` layout** — alongside the per-file `build/resources/*.js`. Only the first matches the current `package.json` manifest; the second describes a package name that doesn't exist in the repo today. Neither can be regenerated by `npm run build && npm run package` as-is.
 
@@ -90,14 +90,14 @@ Evidence they are stale: both contain `build/resources.js`, `build/tools.js` and
 
 Ran on a clean `npm install` (455 packages):
 
-| Command | Result |
-|---|---|
-| `npm install` | ✅ (22 vulns reported: 1 low, 6 moderate, 15 high — mostly `@vscode/vsce`/`keytar` transitive) |
-| `npm run build` | ✅ both halves succeed |
-| `npx tsc --noEmit -p tsconfig.json` | ❌ **fails** — see §4.1 |
-| `npx eslint .` | ❌ **fails to start** — see §4.2 |
-| `npm test` | ❌ no such script; **no test files exist anywhere** (`*.test.*` / `*.spec.*`: none) |
-| CI | ❌ no `.github/` directory at all |
+| Command                             | Result                                                                                         |
+| ----------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `npm install`                       | ✅ (22 vulns reported: 1 low, 6 moderate, 15 high — mostly `@vscode/vsce`/`keytar` transitive) |
+| `npm run build`                     | ✅ both halves succeed                                                                         |
+| `npx tsc --noEmit -p tsconfig.json` | ❌ **fails** — see §4.1                                                                        |
+| `npx eslint .`                      | ❌ **fails to start** — see §4.2                                                               |
+| `npm test`                          | ❌ no such script; **no test files exist anywhere** (`*.test.*` / `*.spec.*`: none)            |
+| CI                                  | ❌ no `.github/` directory at all                                                              |
 
 ## 4. Defects found (beyond the ones the plan already named)
 
@@ -153,9 +153,14 @@ Outdated per the handoff plan; to be replaced with a dated, live-verified note i
 ## 5. GitHub repo metadata (via `gh repo view`)
 
 ```json
-{ "name": "coding-guidelines-mcp-server", "description": "", "repositoryTopics": null,
-  "visibility": "PUBLIC", "isTemplate": false,
-  "url": "https://github.com/luciocabrera/coding-guidelines-mcp-server" }
+{
+  "name": "coding-guidelines-mcp-server",
+  "description": "",
+  "repositoryTopics": null,
+  "visibility": "PUBLIC",
+  "isTemplate": false,
+  "url": "https://github.com/luciocabrera/coding-guidelines-mcp-server"
+}
 ```
 
 Confirms Phase 1.2 and Phase 5.4: description empty, no topics, not a template repo. `gh auth status` shows the `luciocabrera` account authenticated with `repo` + `workflow` scopes, so CI workflow files and `gh repo edit` are both possible without further setup.
@@ -164,8 +169,8 @@ Note the repo is named `…-mcp-server` while `package.json` is named `coding-gu
 
 ## 6. Implications for the later phases
 
-- **Phase 1** has three items, not two: the Copilot claim, the repo metadata, *and* the non-functional Direct Testing snippets (§4.3).
+- **Phase 1** has three items, not two: the Copilot claim, the repo metadata, _and_ the non-functional Direct Testing snippets (§4.3).
 - **Phase 2** has no existing test convention to respect — Vitest is unconstrained. Note `src/` is ESM/NodeNext-ish while `src/extension/` is CommonJS against the `vscode` module, which cannot be imported outside VS Code; test the server, not the extension.
 - **Phase 3** cannot pass until §4.1 and §4.2 are fixed. Sequence: fix typecheck + add the missing lint deps + reconcile prettier quoting **before** wiring CI, or the first green build is unreachable.
 - **Phase 5** targets are precisely `src/resources/*.resource.ts` (URI→file mapping) and `src/config/validation-rules.ts` (categories). Both are small and self-contained; neither requires touching handler code. The `ValidationCategory` union type in `types.ts` is what makes categories compile-time — Phase 5.3's decision is really "keep the union, or widen it to `string` and validate at runtime". That is a public contract change, so it stays a question for Lucio.
-- **Phase 7** must resolve the `.vsix` inconsistency documented above; the two committed files disagree with each other *and* with the current source, so "reproduce equivalent artifacts" is not achievable for the second one — removing it in favour of CI release artifacts is the cleaner path.
+- **Phase 7** must resolve the `.vsix` inconsistency documented above; the two committed files disagree with each other _and_ with the current source, so "reproduce equivalent artifacts" is not achievable for the second one — removing it in favour of CI release artifacts is the cleaner path.

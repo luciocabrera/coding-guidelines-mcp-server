@@ -95,6 +95,10 @@ By default the server reads guidelines from the `guidelines/` directory next to 
 
 ### Option 4: The VS Code chat agent
 
+Requires **VS Code 1.134 or newer** (`engines.vscode`). The extension is a chat
+participant, and the Copilot MCP integration above needs 1.102+, so a recent
+VS Code was already implied.
+
 Install one of the `.vsix` packages, then use `@guidelines` in VS Code Chat:
 
 ```
