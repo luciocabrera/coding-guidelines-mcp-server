@@ -138,7 +138,20 @@ npx @modelcontextprotocol/inspector node build/index.js
 }
 ```
 
-**Claude Desktop** — add the same command/args under `mcpServers` in your `claude_desktop_config.json`. See the [MCP quickstart](https://modelcontextprotocol.io/quickstart/user) for the file's location on your platform.
+**Claude Desktop** — edit `claude_desktop_config.json` (Settings → Developer → Edit Config), then restart Claude Desktop completely:
+
+```json
+{
+  "mcpServers": {
+    "coding-guidelines": {
+      "command": "node",
+      "args": ["/absolute/path/to/build/index.js"]
+    }
+  }
+}
+```
+
+The file lives at `~/Library/Application Support/Claude/claude_desktop_config.json` on macOS and `%APPDATA%\Claude\claude_desktop_config.json` on Windows. Paths in `args` must be absolute — a relative path is the most common reason a stdio server silently fails to start.
 
 **Any other MCP client** — run `node /absolute/path/to/build/index.js` over stdio.
 
@@ -176,13 +189,24 @@ Claims about other tools go stale. Each row records what was checked and when, s
 | GitHub Copilot — VS Code                   | Generally available since VS Code 1.102 | Vendor documentation only — **not yet verified against this server**                                                           | 2026-09-02 |
 | GitHub Copilot — Visual Studio             | Generally available (17.14+)            | Vendor documentation only                                                                                                      | 2026-09-02 |
 | GitHub Copilot — JetBrains, Xcode, Eclipse | Public preview                          | Vendor documentation only                                                                                                      | 2026-09-02 |
-| Claude Desktop                             | Supported                               | Vendor documentation only — config format not re-verified                                                                      | 2026-09-02 |
+| Claude Desktop                             | Supported                               | Config format re-checked against the current MCP quickstart; not driven against a live client                                  | 2026-09-02 |
 
 Note for organisation users: MCP in Copilot is governed by the _MCP servers in Copilot_ policy, which is **disabled by default** and must be enabled by an org or enterprise administrator.
 
 Sources: [MCP support in VS Code is generally available](https://github.blog/changelog/2025-07-14-model-context-protocol-mcp-support-in-vs-code-is-generally-available/) · [Extending Copilot Chat with MCP](https://docs.github.com/copilot/customizing-copilot/using-model-context-protocol/extending-copilot-chat-with-mcp)
 
 > An earlier version of this README stated that "GitHub Copilot does not currently support MCP servers." That has been untrue since July 2025.
+
+### Re-verifying these rows
+
+The rows marked _vendor documentation only_ have not been driven against a live client. To promote one to verified, and to keep this table honest as clients change:
+
+1. `npm run build`, then note the absolute path to `build/index.js`.
+2. Configure it in the client using the snippets above.
+3. Ask the assistant something only these guidelines answer — for example _"what does our styling guide say about className?"_ — and confirm it calls `search_guidelines` rather than answering from general knowledge.
+4. Update the row with the client version, the date, and how you checked it.
+
+For Copilot in VS Code, `MCP: List Servers` in the Command Palette shows whether the server was picked up, and its output channel carries the startup banner (`... running on stdio (5 guidelines from ...)`).
 
 ## Development
 
