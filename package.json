@@ -50,6 +50,7 @@
     "format:check": "prettier --check \"**/*.{ts,mts,md,json,yml}\"",
     "test": "npm run build:mcp && vitest run",
     "test:watch": "vitest",
+    "demo": "npm run build:mcp && node scripts/record-demo.mjs",
     "watch": "tsc -p src/extension/tsconfig.json --watch",
     "vscode:prepublish": "npm run build",
     "package": "vsce package --allow-missing-repository"
