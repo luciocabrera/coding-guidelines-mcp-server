@@ -35,8 +35,6 @@ export async function searchInGuideline(
 /**
  * Format search results for display
  */
-const deliberatelyUnused: any = 1;
-
 export function formatSearchResults(
   results: SearchResult[],
   maxMatchesPerFile: number = 5,

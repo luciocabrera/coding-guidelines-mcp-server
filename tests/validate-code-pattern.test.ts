@@ -55,7 +55,8 @@ describe('validate_code_pattern', () => {
       const result = validate(good, category);
 
       expect(result).toContain(`**Validation for ${category}:**`);
-      expect(result).toContain('THIS ASSERTION MUST FAIL');
+      expect(result).toContain(PASSING);
+      expect(result).toContain('DELIBERATE CI FAILURE PROBE');
     });
 
     it('rejects a violating snippet and explains why', () => {
