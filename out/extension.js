@@ -43,17 +43,19 @@ const util_1 = require("util");
 const child_process_1 = require("child_process");
 let mcpClient;
 const exec = (0, util_1.promisify)(child_process_1.exec);
+/** Render a caught value for display; `catch` bindings are `unknown`. */
+const describeError = (error) => error instanceof Error ? error.message : String(error);
 async function activate(context) {
     mcpClient = new mcp_client_1.MCPClient(context.extensionPath);
     try {
         await mcpClient.connect();
-        vscode.window.showInformationMessage("Coding Guidelines Agent connected!");
+        vscode.window.showInformationMessage('Coding Guidelines Agent connected!');
     }
     catch (error) {
-        vscode.window.showErrorMessage(`Failed to connect to MCP server: ${error}`);
+        vscode.window.showErrorMessage(`Failed to connect to MCP server: ${describeError(error)}`);
     }
-    const agent = vscode.chat.createChatParticipant("coding-guidelines.agent", handleChatRequest);
-    agent.iconPath = new vscode.ThemeIcon("gear");
+    const agent = vscode.chat.createChatParticipant('coding-guidelines.agent', handleChatRequest);
+    agent.iconPath = new vscode.ThemeIcon('gear');
     context.subscriptions.push(agent);
     context.subscriptions.push({
         dispose: () => mcpClient.disconnect(),
@@ -65,17 +67,17 @@ async function handleChatRequest(request, _context, stream, _token) {
     try {
         if (!command && needsClarification(query)) {
             stream.markdown(buildClarificationPrompt());
-            return { metadata: { command: "clarify" } };
+            return { metadata: { command: 'clarify' } };
         }
-        if (command === "generate" || shouldGenerate(query)) {
+        if (command === 'generate' || shouldGenerate(query)) {
             if (!hasArtifactTarget(query) || isRestyleRequest(query)) {
                 stream.markdown(buildRestylePrompt());
-                return { metadata: { command: "clarify" } };
+                return { metadata: { command: 'clarify' } };
             }
             const { task, name } = inferGenerationIntent(query);
-            if (!query || !query.trim() || name === "Component") {
-                stream.markdown("🔎 I can generate code, but I need a bit more detail. Please share the target artifact (component/feature/page/app), required states, data shape, interactions, visual direction (palette/spacing/typography), a11y needs (aria labels, focus behavior), and any performance constraints.");
-                return { metadata: { command: command || "default" } };
+            if (!query || !query.trim() || name === 'Component') {
+                stream.markdown('🔎 I can generate code, but I need a bit more detail. Please share the target artifact (component/feature/page/app), required states, data shape, interactions, visual direction (palette/spacing/typography), a11y needs (aria labels, focus behavior), and any performance constraints.');
+                return { metadata: { command: command || 'default' } };
             }
             stream.markdown(`🛠️ Generating ${task} "${name}"...\n\n`);
             const result = await mcpClient.generateCode({
@@ -83,13 +85,13 @@ async function handleChatRequest(request, _context, stream, _token) {
                 name,
                 requirements: query,
                 includeTests: true,
-                includeRef: /\bref\b/i.test(query || ""),
+                includeRef: /\bref\b/i.test(query || ''),
             });
-            stream.markdown(result.text + "\n\n");
+            stream.markdown(result.text + '\n\n');
             const workspace = vscode.workspace.workspaceFolders?.[0];
             if (!workspace) {
-                stream.markdown("⚠️ No workspace folder open. Cannot write files or run commands.\n");
-                return { metadata: { command: command || "default" } };
+                stream.markdown('⚠️ No workspace folder open. Cannot write files or run commands.\n');
+                return { metadata: { command: command || 'default' } };
             }
             await ensureReactProject(workspace.uri.fsPath, stream);
             if (result.files?.length) {
@@ -100,29 +102,29 @@ async function handleChatRequest(request, _context, stream, _token) {
                 await runPostCommands(workspace.uri.fsPath, result.commands, stream);
             }
         }
-        else if (command === "search" || (!command && query)) {
+        else if (command === 'search' || (!command && query)) {
             const scripts = detectScriptRequests(query);
             if (scripts.length) {
                 const workspace = vscode.workspace.workspaceFolders?.[0];
                 if (!workspace) {
-                    stream.markdown("⚠️ No workspace folder open. Cannot update package.json.\n");
-                    return { metadata: { command: command || "default" } };
+                    stream.markdown('⚠️ No workspace folder open. Cannot update package.json.\n');
+                    return { metadata: { command: command || 'default' } };
                 }
                 await ensureScriptsForCommands(workspace.uri.fsPath, scripts.map((s) => `npm run ${s}`), stream);
-                stream.markdown(`✅ Ensured scripts: ${scripts.join(", ")}\n`);
-                return { metadata: { command: command || "default" } };
+                stream.markdown(`✅ Ensured scripts: ${scripts.join(', ')}\n`);
+                return { metadata: { command: command || 'default' } };
             }
-            stream.markdown("🔍 Searching guidelines...\n\n");
+            stream.markdown('🔍 Searching guidelines...\n\n');
             const result = await mcpClient.searchGuidelines(query);
             stream.markdown(result);
         }
-        else if (command === "validate") {
-            stream.markdown("✅ Validating code...\n\n");
-            const result = await mcpClient.validateCode(query, "component");
+        else if (command === 'validate') {
+            stream.markdown('✅ Validating code...\n\n');
+            const result = await mcpClient.validateCode(query, 'component');
             stream.markdown(result);
         }
-        else if (command === "summary") {
-            stream.markdown("📖 Getting guideline summary...\n\n");
+        else if (command === 'summary') {
+            stream.markdown('📖 Getting guideline summary...\n\n');
             const result = await mcpClient.getGuidelineSummary(query);
             stream.markdown(result);
         }
@@ -140,17 +142,17 @@ async function handleChatRequest(request, _context, stream, _token) {
         }
     }
     catch (error) {
-        stream.markdown(`❌ Error: ${error}`);
+        stream.markdown(`❌ Error: ${describeError(error)}`);
     }
-    return { metadata: { command: command || "default" } };
+    return { metadata: { command: command || 'default' } };
 }
 function detectScriptRequests(query) {
     if (!query)
         return [];
-    const targets = ["format", "lint", "test", "typecheck", "type-check", "type:check"];
+    const targets = ['format', 'lint', 'test', 'typecheck', 'type-check', 'type:check'];
     const matches = [];
     for (const name of targets) {
-        const re = new RegExp(`(add|create|ensure).{0,40}${name}\\s+script`, "i");
+        const re = new RegExp(`(add|create|ensure).{0,40}${name}\\s+script`, 'i');
         if (re.test(query)) {
             matches.push(name);
         }
@@ -159,9 +161,9 @@ function detectScriptRequests(query) {
 }
 function buildFallbackMessage() {
     return [
-        "🤔 I don’t have a built-in action for that.",
-        "Try @copilot for a free-form answer, or give me a clearer target (component/page/feature) and what you want changed so I can help directly.",
-    ].join("\n");
+        '🤔 I don’t have a built-in action for that.',
+        'Try @copilot for a free-form answer, or give me a clearer target (component/page/feature) and what you want changed so I can help directly.',
+    ].join('\n');
 }
 function shouldGenerate(query) {
     if (!query)
@@ -169,80 +171,83 @@ function shouldGenerate(query) {
     return /\b(generate|create|build|bootstrap|scaffold|component|feature|project|make|improve|enhance|redesign|restyle|style|design|attractive|prettier|beautify)\b/i.test(query);
 }
 function inferGenerationIntent(query) {
-    const normalized = query || "";
-    const stripped = normalized.replace(/@guidelines/gi, "").trim();
+    const normalized = query || '';
+    const stripped = normalized.replace(/@guidelines/gi, '').trim();
     const hasFeature = /\bfeature\b/i.test(stripped);
     const hasBootstrap = /\bbootstrap|project|app|application\b/i.test(stripped);
     const hasHook = /\bhook\b/i.test(stripped);
-    let task = "component";
+    let task = 'component';
     if (hasFeature)
-        task = "feature";
+        task = 'feature';
     if (hasBootstrap)
-        task = "bootstrap";
+        task = 'bootstrap';
     if (hasHook)
-        task = "hook";
-    const nameMatch = stripped.match(/(?:create|build|generate|for|named|called)\s+([A-Za-z0-9 \-]+)/i);
-    const rawName = nameMatch?.[1]?.trim() || stripped.trim() || "Component";
+        task = 'hook';
+    const nameMatch = stripped.match(/(?:create|build|generate|for|named|called)\s+([A-Za-z0-9 -]+)/i);
+    const rawName = nameMatch?.[1]?.trim() || stripped.trim() || 'Component';
     const name = normalizeArtifactName(rawName, stripped);
     return { task, name };
 }
 function normalizeArtifactName(raw, query) {
     const cleaned = raw
-        .replace(/^['"`]/, "")
-        .replace(/['"`]$/, "")
-        .replace(/\s+/g, " ")
+        .replace(/^['"`]/, '')
+        .replace(/['"`]$/, '')
+        .replace(/\s+/g, ' ')
         .trim();
-    const noArticle = cleaned.replace(/^(?:a|an|the)\s+/i, "").trim();
+    const noArticle = cleaned.replace(/^(?:a|an|the)\s+/i, '').trim();
     const canonical = canonicalArtifactName(query, noArticle);
     if (canonical)
         return canonical;
     if (!noArticle)
-        return "Component";
-    const parts = noArticle.split(/[^A-Za-z0-9]+/).filter(Boolean).slice(0, 3);
+        return 'Component';
+    const parts = noArticle
+        .split(/[^A-Za-z0-9]+/)
+        .filter(Boolean)
+        .slice(0, 3);
     if (!parts.length)
-        return "Component";
-    return parts.map(toPascal).join("");
+        return 'Component';
+    return parts.map(toPascal).join('');
 }
 function canonicalArtifactName(query, fallback) {
     const whitelist = [
-        { match: /\bnav\s*bar\b|\bnavbar\b/i, name: "Navbar" },
-        { match: /\bheader\b/i, name: "Header" },
-        { match: /\bfooter\b/i, name: "Footer" },
-        { match: /\bhero\b/i, name: "Hero" },
-        { match: /\bsidebar\b/i, name: "Sidebar" },
-        { match: /\bmenu\b/i, name: "Menu" },
-        { match: /\bbutton\b/i, name: "Button" },
-        { match: /\bcard\b/i, name: "Card" },
-        { match: /\bmodal\b|\bdialog\b/i, name: "Modal" },
-        { match: /\bbanner\b/i, name: "Banner" },
-        { match: /\bdrawer\b/i, name: "Drawer" },
-        { match: /\blist\b/i, name: "List" },
-        { match: /\btable\b/i, name: "Table" },
-        { match: /\bgrid\b/i, name: "Grid" },
-        { match: /\bchart\b/i, name: "Chart" },
-        { match: /\bdashboard\b/i, name: "Dashboard" },
-        { match: /\blayout\b/i, name: "Layout" },
-        { match: /\bsection\b/i, name: "Section" },
-        { match: /\bpage\b|\bscreen\b|\bview\b/i, name: "Page" },
-        { match: /\bform\b/i, name: "Form" },
-        { match: /\binput\b/i, name: "Input" },
-        { match: /\bselect\b/i, name: "Select" },
-        { match: /\btextarea\b/i, name: "Textarea" },
-        { match: /\bcheckbox\b/i, name: "Checkbox" },
-        { match: /\bradio\b/i, name: "Radio" },
-        { match: /\btoggle\b|\bswitch\b/i, name: "Toggle" },
-        { match: /\bavatar\b/i, name: "Avatar" },
-        { match: /\bbadge\b/i, name: "Badge" },
-        { match: /\bbreadcrumb\b/i, name: "Breadcrumb" },
-        { match: /\btab\b/i, name: "Tabs" },
-        { match: /\bpagination\b/i, name: "Pagination" },
-        { match: /\btooltip\b/i, name: "Tooltip" },
-        { match: /\bpopover\b/i, name: "Popover" },
-        { match: /\btoast\b|\balert\b|\bnotification\b/i, name: "Toast" },
-        { match: /\bprogress\b/i, name: "Progress" },
-        { match: /\bspinner\b|\bloader\b/i, name: "Spinner" },
-        { match: /\bchip\b|\bpill\b/i, name: "Chip" },
-        { match: /\bcallout\b|\bnote\b/i, name: "Callout" },
+        { match: /\bnav\s*bar\b|\bnavbar\b/i, name: 'Navbar' },
+        { match: /\bheader\b/i, name: 'Header' },
+        { match: /\bfooter\b/i, name: 'Footer' },
+        { match: /\bhero\b/i, name: 'Hero' },
+        { match: /\bsidebar\b/i, name: 'Sidebar' },
+        { match: /\bmenu\b/i, name: 'Menu' },
+        { match: /\bbutton\b/i, name: 'Button' },
+        { match: /\bcard\b/i, name: 'Card' },
+        { match: /\bmodal\b|\bdialog\b/i, name: 'Modal' },
+        { match: /\bbanner\b/i, name: 'Banner' },
+        { match: /\bdrawer\b/i, name: 'Drawer' },
+        { match: /\blist\b/i, name: 'List' },
+        { match: /\btable\b/i, name: 'Table' },
+        { match: /\bgrid\b/i, name: 'Grid' },
+        { match: /\bchart\b/i, name: 'Chart' },
+        { match: /\bdashboard\b/i, name: 'Dashboard' },
+        { match: /\blayout\b/i, name: 'Layout' },
+        { match: /\bsection\b/i, name: 'Section' },
+        { match: /\bpage\b|\bscreen\b|\bview\b/i, name: 'Page' },
+        { match: /\bform\b/i, name: 'Form' },
+        { match: /\binput\b/i, name: 'Input' },
+        { match: /\bselect\b/i, name: 'Select' },
+        { match: /\btextarea\b/i, name: 'Textarea' },
+        { match: /\bcheckbox\b/i, name: 'Checkbox' },
+        { match: /\bradio\b/i, name: 'Radio' },
+        { match: /\btoggle\b|\bswitch\b/i, name: 'Toggle' },
+        { match: /\bavatar\b/i, name: 'Avatar' },
+        { match: /\bbadge\b/i, name: 'Badge' },
+        { match: /\bbreadcrumb\b/i, name: 'Breadcrumb' },
+        { match: /\btab\b/i, name: 'Tabs' },
+        { match: /\bpagination\b/i, name: 'Pagination' },
+        { match: /\btooltip\b/i, name: 'Tooltip' },
+        { match: /\bpopover\b/i, name: 'Popover' },
+        { match: /\btoast\b|\balert\b|\bnotification\b/i, name: 'Toast' },
+        { match: /\bprogress\b/i, name: 'Progress' },
+        { match: /\bspinner\b|\bloader\b/i, name: 'Spinner' },
+        { match: /\bchip\b|\bpill\b/i, name: 'Chip' },
+        { match: /\bcallout\b|\bnote\b/i, name: 'Callout' },
     ];
     for (const item of whitelist) {
         if (item.match.test(query) || item.match.test(fallback)) {
@@ -278,42 +283,42 @@ function needsClarification(query) {
 }
 function buildClarificationPrompt() {
     return [
-        "🤝 I can help, but I need a bit more detail.",
-        "Please specify: what you want (component/feature/page/app), key states and interactions, data shape, visual direction (palette/spacing/typography), accessibility needs (aria/focus/labels), and any performance constraints or deadlines.",
+        '🤝 I can help, but I need a bit more detail.',
+        'Please specify: what you want (component/feature/page/app), key states and interactions, data shape, visual direction (palette/spacing/typography), accessibility needs (aria/focus/labels), and any performance constraints or deadlines.',
         "You can reply in bullets, e.g.: 'Generate a dashboard hero with CTA, secondary link, loading/success/error states, prefers high-contrast, 2-column on desktop, single column on mobile.'",
-        "For restyles, include the target file or pasted code and the vibe: bold/minimal/playful, brand colors, gradients or not, spacing/rounding, motion, and contrast preferences.",
-    ].join("\n\n");
+        'For restyles, include the target file or pasted code and the vibe: bold/minimal/playful, brand colors, gradients or not, spacing/rounding, motion, and contrast preferences.',
+    ].join('\n\n');
 }
 function buildRestylePrompt() {
     return [
-        "✨ Happy to make it more attractive, but I need the target.",
-        "Please share: component/page/feature name, file path (or paste the code), current pain points, and the visual direction (e.g., bold, minimal, high-contrast, playful, brand colors, gradients, rounding, motion).",
+        '✨ Happy to make it more attractive, but I need the target.',
+        'Please share: component/page/feature name, file path (or paste the code), current pain points, and the visual direction (e.g., bold, minimal, high-contrast, playful, brand colors, gradients, rounding, motion).',
         "Example: 'Restyle HeroSection in src/components/HeroSection.tsx: feels flat. Want high-contrast hero with a soft gradient, larger headline, 16px->24px spacing, 12px rounding, pronounced focus rings, and a gentle fade-in on load.'",
-    ].join("\n");
+    ].join('\n');
 }
 function getHelpMessage() {
     return [
-        "# Coding Guidelines Agent",
-        "I can help with guidelines, validation, summaries, or generating code.",
-        "Commands:",
-        "- @guidelines [query] — Search for guidelines",
-        "- @guidelines /search [query] — Search for specific patterns",
-        "- @guidelines /validate [code] — Validate code against guidelines",
-        "- @guidelines /summary [name] — Get summary of a guideline document",
-        "- @guidelines /generate [ask] — Generate components, features, or bootstrap plans",
-        "Examples:",
-        "- @guidelines StyleX",
-        "- @guidelines /search component patterns",
-        "- @guidelines /validate const MyComponent = () => {}",
-        "- @guidelines /summary Coding Guidelines",
-        "- @guidelines /generate create a Button component with loading state",
-    ].join("\n");
+        '# Coding Guidelines Agent',
+        'I can help with guidelines, validation, summaries, or generating code.',
+        'Commands:',
+        '- @guidelines [query] — Search for guidelines',
+        '- @guidelines /search [query] — Search for specific patterns',
+        '- @guidelines /validate [code] — Validate code against guidelines',
+        '- @guidelines /summary [name] — Get summary of a guideline document',
+        '- @guidelines /generate [ask] — Generate components, features, or bootstrap plans',
+        'Examples:',
+        '- @guidelines StyleX',
+        '- @guidelines /search component patterns',
+        '- @guidelines /validate const MyComponent = () => {}',
+        '- @guidelines /summary Coding Guidelines',
+        '- @guidelines /generate create a Button component with loading state',
+    ].join('\n');
 }
 async function writeGeneratedFiles(workspaceRoot, files, stream) {
     for (const file of files) {
         const absPath = (0, path_1.join)(workspaceRoot, file.path);
         await (0, promises_1.mkdir)((0, path_1.dirname)(absPath), { recursive: true });
-        await (0, promises_1.writeFile)(absPath, file.content, "utf8");
+        await (0, promises_1.writeFile)(absPath, file.content, 'utf8');
         stream.markdown(`✅ Wrote ${file.path}\n`);
     }
 }
@@ -326,114 +331,113 @@ async function ensureScriptsForCommands(cwd, commands, stream) {
             scriptNames.add(runMatch[1]);
         }
         else if (testMatch) {
-            scriptNames.add("test");
+            scriptNames.add('test');
         }
     }
     if (!scriptNames.size)
         return;
-    const pkgPath = (0, path_1.join)(cwd, "package.json");
+    const pkgPath = (0, path_1.join)(cwd, 'package.json');
     try {
-        const pkgRaw = await (0, promises_1.readFile)(pkgPath, "utf8");
+        const pkgRaw = await (0, promises_1.readFile)(pkgPath, 'utf8');
         const pkg = JSON.parse(pkgRaw);
-        const scripts = pkg.scripts || {};
+        const scripts = pkg.scripts ?? {};
         let modified = false;
         for (const name of scriptNames) {
             if (scripts[name])
                 continue;
-            if (name === "format") {
+            if (name === 'format') {
                 scripts[name] = "echo 'Format script not configured; skipping.'";
             }
-            else if (name === "lint") {
+            else if (name === 'lint') {
                 scripts[name] = "echo 'Lint script not configured; skipping.'";
             }
-            else if (name === "typecheck" || name === "type-check" || name === "type:check") {
+            else if (name === 'typecheck' || name === 'type-check' || name === 'type:check') {
                 scripts[name] = "echo 'Typecheck script not configured; skipping.'";
             }
-            else if (name === "test") {
+            else if (name === 'test') {
                 scripts[name] = "echo 'Test script not configured; skipping.'";
             }
             else {
-                scripts[name] = `echo "Script '${name}' is not configured yet. Please update package.json with your desired command."`;
+                scripts[name] =
+                    `echo "Script '${name}' is not configured yet. Please update package.json with your desired command."`;
             }
             stream.markdown(`ℹ️ Added placeholder script '${name}' to package.json\n`);
             modified = true;
         }
         if (modified) {
             pkg.scripts = scripts;
-            await (0, promises_1.writeFile)(pkgPath, JSON.stringify(pkg, null, 2) + "\n", "utf8");
+            await (0, promises_1.writeFile)(pkgPath, JSON.stringify(pkg, null, 2) + '\n', 'utf8');
         }
     }
     catch (error) {
-        stream.markdown(`⚠️ Unable to ensure scripts: ${error}\n`);
+        stream.markdown(`⚠️ Unable to ensure scripts: ${describeError(error)}\n`);
     }
 }
 async function runPostCommands(cwd, commands, stream) {
     for (const cmd of commands) {
-        let attemptedRetry = false;
         try {
             stream.markdown(`▶️ ${cmd}\n`);
             const { stdout, stderr } = await exec(cmd, { cwd });
             if (stdout) {
-                stream.markdown("```\n" + stdout.trim() + "\n```\n");
+                stream.markdown('```\n' + stdout.trim() + '\n```\n');
             }
             if (stderr) {
-                stream.markdown("```\n" + stderr.trim() + "\n```\n");
+                stream.markdown('```\n' + stderr.trim() + '\n```\n');
             }
         }
         catch (error) {
             const message = String(error);
             const isMissingScript = /Missing script/i.test(message);
-            if (!attemptedRetry && isMissingScript) {
-                attemptedRetry = true;
+            if (isMissingScript) {
                 await ensureScriptsForCommands(cwd, [cmd], stream);
                 stream.markdown(`↻ Retrying ${cmd} after adding missing script...\n`);
                 try {
                     const { stdout, stderr } = await exec(cmd, { cwd });
                     if (stdout) {
-                        stream.markdown("```\n" + stdout.trim() + "\n```\n");
+                        stream.markdown('```\n' + stdout.trim() + '\n```\n');
                     }
                     if (stderr) {
-                        stream.markdown("```\n" + stderr.trim() + "\n```\n");
+                        stream.markdown('```\n' + stderr.trim() + '\n```\n');
                     }
                     continue;
                 }
                 catch (retryError) {
-                    stream.markdown(`⚠️ Command failed again: ${cmd} - ${retryError}\n`);
+                    stream.markdown(`⚠️ Command failed again: ${cmd} - ${describeError(retryError)}\n`);
                     break;
                 }
             }
-            stream.markdown(`⚠️ Command failed: ${cmd} - ${error}\n`);
+            stream.markdown(`⚠️ Command failed: ${cmd} - ${describeError(error)}\n`);
             break;
         }
     }
 }
 async function ensureReactProject(cwd, stream) {
-    const pkgPath = (0, path_1.join)(cwd, "package.json");
+    const pkgPath = (0, path_1.join)(cwd, 'package.json');
     let hasReact = false;
     try {
-        const pkgRaw = await (0, promises_1.readFile)(pkgPath, "utf8");
+        const pkgRaw = await (0, promises_1.readFile)(pkgPath, 'utf8');
         const pkg = JSON.parse(pkgRaw);
         const deps = { ...pkg.dependencies, ...pkg.devDependencies };
-        hasReact = Boolean(deps?.react || deps?.["react-dom"]);
+        hasReact = Boolean(deps.react ?? deps['react-dom']);
     }
     catch {
         // no package or unreadable
     }
     if (hasReact)
         return;
-    stream.markdown("🚀 No React project detected. Bootstrapping Vite + React 19 + TS + ESLint/Prettier/StyleX...\n");
+    stream.markdown('🚀 No React project detected. Bootstrapping Vite + React 19 + TS + ESLint/Prettier/StyleX...\n');
     const bootstrapCommands = [
-        "npm create vite@latest . -- --template react-ts",
-        "npm install @stylexjs/stylex @stylexjs/babel-plugin @stylexjs/eslint-plugin zod react-router-dom @types/react-router-dom --legacy-peer-deps",
-        "npm install -D eslint prettier typescript @types/node @types/react @types/react-dom @types/jsdom jsdom @testing-library/react @testing-library/jest-dom @testing-library/user-event vitest @vitest/coverage-v8 eslint-plugin-react eslint-plugin-react-hooks typescript-eslint --legacy-peer-deps",
+        'npm create vite@latest . -- --template react-ts',
+        'npm install @stylexjs/stylex @stylexjs/babel-plugin @stylexjs/eslint-plugin zod react-router-dom @types/react-router-dom --legacy-peer-deps',
+        'npm install -D eslint prettier typescript @types/node @types/react @types/react-dom @types/jsdom jsdom @testing-library/react @testing-library/jest-dom @testing-library/user-event vitest @vitest/coverage-v8 eslint-plugin-react eslint-plugin-react-hooks typescript-eslint --legacy-peer-deps',
     ];
     await runPostCommands(cwd, bootstrapCommands, stream);
     await ensureSingleEslintConfig(cwd, stream);
 }
 async function ensureSingleEslintConfig(cwd, stream) {
-    const jsConfigPath = (0, path_1.join)(cwd, "eslint.config.js");
+    const jsConfigPath = (0, path_1.join)(cwd, 'eslint.config.js');
     await (0, promises_1.rm)(jsConfigPath, { force: true }).catch(() => { });
-    const mjsConfigPath = (0, path_1.join)(cwd, "eslint.config.mjs");
+    const mjsConfigPath = (0, path_1.join)(cwd, 'eslint.config.mjs');
     const content = `import js from "@eslint/js";
 import tseslint from "typescript-eslint";
 import react from "eslint-plugin-react";
@@ -485,8 +489,8 @@ export default tseslint.config(
   }
 );
 `;
-    await (0, promises_1.writeFile)(mjsConfigPath, content, "utf8");
-    stream.markdown("✅ Ensured single eslint.config.mjs with React/TS/StyleX/Prettier rules\n");
+    await (0, promises_1.writeFile)(mjsConfigPath, content, 'utf8');
+    stream.markdown('✅ Ensured single eslint.config.mjs with React/TS/StyleX/Prettier rules\n');
 }
 function deactivate() {
     if (mcpClient) {

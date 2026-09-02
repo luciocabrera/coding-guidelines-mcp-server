@@ -3,4 +3,4 @@
  * Exports the VS Code extension activation functions
  */
 
-export { activate, deactivate } from "./extension";
+export { activate, deactivate } from './extension';

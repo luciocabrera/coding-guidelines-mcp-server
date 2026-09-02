@@ -3,9 +3,9 @@
  * Functions for searching within guideline documents
  */
 
-import { readFile } from "fs/promises";
-import { join } from "path";
-import type { Guideline, SearchMatch, SearchResult } from "../types.js";
+import { readFile } from 'fs/promises';
+import { join } from 'path';
+import type { Guideline, SearchMatch, SearchResult } from '../types.js';
 
 /**
  * Search for a query in a guideline file
@@ -13,11 +13,11 @@ import type { Guideline, SearchMatch, SearchResult } from "../types.js";
 export async function searchInGuideline(
   guidelinesPath: string,
   guideline: Guideline,
-  query: string
+  query: string,
 ): Promise<SearchResult | null> {
   try {
-    const content = await readFile(join(guidelinesPath, guideline.file), "utf-8");
-    const lines = content.split("\n");
+    const content = await readFile(join(guidelinesPath, guideline.file), 'utf-8');
+    const lines = content.split('\n');
     const matches: SearchMatch[] = lines
       .map((line, index) => ({ line, index }))
       .filter(({ line }) => line.toLowerCase().includes(query.toLowerCase()));
@@ -37,10 +37,10 @@ export async function searchInGuideline(
  */
 export function formatSearchResults(
   results: SearchResult[],
-  maxMatchesPerFile: number = 5
+  maxMatchesPerFile: number = 5,
 ): string {
   if (results.length === 0) {
-    return "No results found";
+    return 'No results found';
   }
 
   const formatted: string[] = [];
@@ -58,7 +58,7 @@ export function formatSearchResults(
     }
   }
 
-  return `Found results in ${results.length} documents:\n${formatted.join("\n")}`;
+  return `Found results in ${results.length} documents:\n${formatted.join('\n')}`;
 }
 
 /**
@@ -67,7 +67,7 @@ export function formatSearchResults(
 export function extractContext(
   lines: string[],
   matchIndex: number,
-  contextSize: number = 2
+  contextSize: number = 2,
 ): string {
   const start = Math.max(0, matchIndex - contextSize);
   const end = Math.min(lines.length, matchIndex + contextSize + 1);
@@ -76,8 +76,8 @@ export function extractContext(
     .slice(start, end)
     .map((line, idx) => {
       const lineNum = start + idx + 1;
-      const marker = start + idx === matchIndex ? "→" : " ";
+      const marker = start + idx === matchIndex ? '→' : ' ';
       return `${marker} ${lineNum}: ${line}`;
     })
-    .join("\n");
+    .join('\n');
 }

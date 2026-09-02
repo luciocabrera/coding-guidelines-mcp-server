@@ -1,4 +1,4 @@
-import type { GenerateCodeArgs, GenerateCodeResult, GeneratedFile } from "../types.js";
+import type { GenerateCodeArgs, GenerateCodeResult, GeneratedFile } from '../types.js';
 
 const sharedGuidelineNotes = `Pre-flight checklist (workspace):
 - Verify you are in the coding-guidelines workspace and dependencies are installed (React 19, StyleX, babel/vite plugins, testing stack). See setup guide in /guidelines.
@@ -21,18 +21,18 @@ function toPascalCase(value: string): string {
     .split(/[^a-zA-Z0-9]+/)
     .filter(Boolean)
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join("")
-    .replace(/[^a-zA-Z0-9]/g, "")
-    .replace(/^\d+/, "");
+    .join('')
+    .replace(/[^a-zA-Z0-9]/g, '')
+    .replace(/^\d+/, '');
 }
 
 function buildComponentScaffold(
   name: string,
   requirements?: string,
   includeTests: boolean = true,
-  includeRef: boolean = false
+  includeRef: boolean = false,
 ): GenerateCodeResult {
-  const componentName = toPascalCase(name || "Component");
+  const componentName = toPascalCase(name || 'Component');
   const propsName = `${componentName}Props`;
 
   const componentFile = includeRef
@@ -223,20 +223,20 @@ describe("${componentName}", () => {
     });
   }
 
-  const extra = requirements ? `\nRequirements: ${requirements}\n` : "";
+  const extra = requirements ? `\nRequirements: ${requirements}\n` : '';
   const postSteps = `\nAfter generation, run: npm run format && npm run lint && npm run typecheck && npm test -- --coverage`;
 
   return {
     text: `${sharedGuidelineNotes}\n${extra}\nGenerated files (write these to disk):\n${files
       .map((f) => `- ${f.path}`)
-      .join("\n")}${postSteps}`,
+      .join('\n')}${postSteps}`,
     files,
-    commands: ["npm run format", "npm run lint", "npm run typecheck", "npm test -- --coverage"],
+    commands: ['npm run format', 'npm run lint', 'npm run typecheck', 'npm test -- --coverage'],
   };
 }
 
 function buildFeatureScaffold(name: string, requirements?: string): GenerateCodeResult {
-  const featureName = toPascalCase(name || "Feature");
+  const featureName = toPascalCase(name || 'Feature');
   const componentName = `${featureName}Card`;
   const base = `Feature bundle: ${featureName}
 
@@ -286,11 +286,11 @@ export const fetch${featureName} = async () => {
 };
 \`\`\``;
 
-  const extras = requirements ? `\nRequirements: ${requirements}\n` : "";
+  const extras = requirements ? `\nRequirements: ${requirements}\n` : '';
   return {
-    text: `${sharedGuidelineNotes}\n${extras}\n${base}\n${componentSnippet}\n\n${hookSnippet}\n\n${serviceSnippet}`,
+    text: `${sharedGuidelineNotes}\n${extras}\n${base}\n${componentSnippet.text}\n\n${hookSnippet}\n\n${serviceSnippet}`,
     files: undefined,
-    commands: ["npm run format", "npm run lint", "npm run typecheck", "npm test -- --coverage"],
+    commands: ['npm run format', 'npm run lint', 'npm run typecheck', 'npm test -- --coverage'],
   };
 }
 
@@ -304,11 +304,11 @@ function buildBootstrapPlan(requirements?: string): GenerateCodeResult {
 6) npx npm-check-updates -u && npm install --legacy-peer-deps
 `;
 
-  const extra = requirements ? `\nRequirements: ${requirements}\n` : "";
+  const extra = requirements ? `\nRequirements: ${requirements}\n` : '';
 
   const files: GeneratedFile[] = [
     {
-      path: "tsconfig.json",
+      path: 'tsconfig.json',
       content: `{
   "compilerOptions": {
     "target": "ES2020",
@@ -327,10 +327,10 @@ function buildBootstrapPlan(requirements?: string): GenerateCodeResult {
   "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
-`
+`,
     },
     {
-      path: "tsconfig.node.json",
+      path: 'tsconfig.node.json',
       content: `{
   "compilerOptions": {
     "composite": true,
@@ -341,10 +341,10 @@ function buildBootstrapPlan(requirements?: string): GenerateCodeResult {
   },
   "include": ["vite.config.ts", "package.json"]
 }
-`
+`,
     },
     {
-      path: "tsconfig.vitest.json",
+      path: 'tsconfig.vitest.json',
       content: `{
   "compilerOptions": {
     "composite": true,
@@ -355,20 +355,20 @@ function buildBootstrapPlan(requirements?: string): GenerateCodeResult {
   },
   "include": ["vitest.config.ts", "package.json"]
 }
-`
+`,
     },
     {
-      path: "vite.config.ts",
+      path: 'vite.config.ts',
       content: `import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [react({ babel: { plugins: ["@stylexjs/babel-plugin"] } })],
 });
-`
+`,
     },
     {
-      path: "vitest.config.ts",
+      path: 'vitest.config.ts',
       content: `import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 
@@ -383,10 +383,10 @@ export default defineConfig({
     },
   },
 });
-`
+`,
     },
     {
-      path: "eslint.config.js",
+      path: 'eslint.config.js',
       content: `import js from "@eslint/js";
 import tseslint from "typescript-eslint";
 import react from "eslint-plugin-react";
@@ -437,20 +437,20 @@ export default tseslint.config(
     },
   }
 );
-`
+`,
     },
     {
-      path: ".prettierrc.json",
+      path: '.prettierrc.json',
       content: `{
   "singleQuote": true,
   "trailingComma": "all",
   "printWidth": 100,
   "semi": true
 }
-`
+`,
     },
     {
-      path: ".gitignore",
+      path: '.gitignore',
       content: `node_modules
 .DS_Store
 dist
@@ -459,36 +459,36 @@ coverage
 *.log
 .idea
 .vscode
-`
+`,
     },
     {
-      path: ".husky/_/husky.sh",
+      path: '.husky/_/husky.sh',
       content: `#!/bin/sh
 if [ -z "$husky_skip_init" ]; then
   husky_skip_init=1
   export husky_skip_init
   . "$(dirname "$0")/husky.sh"
 fi
-`
+`,
     },
     {
-      path: ".husky/pre-commit",
+      path: '.husky/pre-commit',
       content: `#!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
 npm run lint && npm run typecheck && npm run format
-`
+`,
     },
     {
-      path: ".husky/pre-push",
+      path: '.husky/pre-push',
       content: `#!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
 npm run build && npm test -- --coverage
-`
+`,
     },
     {
-      path: "src/main.tsx",
+      path: 'src/main.tsx',
       content: `import React from "react";
 import ReactDOM from "react-dom/client";
 import { App } from "./App";
@@ -498,22 +498,22 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     <App />
   </React.StrictMode>
 );
-`
+`,
     },
     {
-      path: "src/App.types.ts",
+      path: 'src/App.types.ts',
       content: `export type Todo = { readonly id: string; readonly title: string; readonly done: boolean };
 export type TodoInputProps = { readonly onAdd: (title: string) => void; readonly disabled?: boolean };
 export type TodoItemProps = { readonly todo: Todo; readonly onToggle: (id: string) => void; readonly onRemove: (id: string) => void };
-`
+`,
     },
     {
-      path: "src/setupTests.ts",
+      path: 'src/setupTests.ts',
       content: `import "@testing-library/jest-dom";
-`
+`,
     },
     {
-      path: "src/App.styles.ts",
+      path: 'src/App.styles.ts',
       content: `import * as stylex from "@stylexjs/stylex";
 
 export const styles = stylex.create({
@@ -605,10 +605,10 @@ export const styles = stylex.create({
     cursor: "pointer",
   },
 });
-`
+`,
     },
     {
-      path: "src/components/TodoInput.tsx",
+      path: 'src/components/TodoInput.tsx',
       content: `import { useState } from "react";
 import * as stylex from "@stylexjs/stylex";
 import type { TodoInputProps } from "../App.types";
@@ -641,10 +641,10 @@ export const TodoInput = ({ onAdd, disabled = false }: TodoInputProps) => {
     </form>
   );
 };
-`
+`,
     },
     {
-      path: "src/components/TodoItem.tsx",
+      path: 'src/components/TodoItem.tsx',
       content: `import * as stylex from "@stylexjs/stylex";
 import type { TodoItemProps } from "../App.types";
 import { styles } from "../App.styles";
@@ -664,10 +664,10 @@ export const TodoItem = ({ todo, onToggle, onRemove }: TodoItemProps) => (
     </button>
   </div>
 );
-`
+`,
     },
     {
-      path: "src/App.tsx",
+      path: 'src/App.tsx',
       content: `import { useState } from "react";
 import * as stylex from "@stylexjs/stylex";
 import type { Todo } from "./App.types";
@@ -714,10 +714,10 @@ export const App = () => {
     </div>
   );
 };
-`
+`,
     },
     {
-      path: "src/App.test.tsx",
+      path: 'src/App.test.tsx',
       content: `import { describe, expect, it } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { App } from "./App";
@@ -748,7 +748,7 @@ describe("App", () => {
     expect(screen.queryByText("do taxes")).toBeNull();
   });
 });
-`
+`,
     },
   ];
 
@@ -756,61 +756,64 @@ describe("App", () => {
     text: `${sharedGuidelineNotes}\n${extra}\n${steps}`,
     files,
     commands: [
-      "npm create vite@latest . -- --template react-ts",
-      "npm install @stylexjs/stylex @stylexjs/babel-plugin @stylexjs/eslint-plugin zod react-router-dom @types/react-router-dom --legacy-peer-deps",
-      "npm install -D eslint prettier husky lint-staged typescript @types/node vitest @vitest/coverage-v8 @testing-library/react @testing-library/user-event @testing-library/jest-dom jsdom @types/jsdom --legacy-peer-deps",
-      "npx npm-check-updates -u",
-      "npm install --legacy-peer-deps",
-      "npx husky install .husky",
-      "npm run format",
-      "npm run lint",
-      "npm run typecheck",
-      "npm test -- --coverage"
+      'npm create vite@latest . -- --template react-ts',
+      'npm install @stylexjs/stylex @stylexjs/babel-plugin @stylexjs/eslint-plugin zod react-router-dom @types/react-router-dom --legacy-peer-deps',
+      'npm install -D eslint prettier husky lint-staged typescript @types/node vitest @vitest/coverage-v8 @testing-library/react @testing-library/user-event @testing-library/jest-dom jsdom @types/jsdom --legacy-peer-deps',
+      'npx npm-check-updates -u',
+      'npm install --legacy-peer-deps',
+      'npx husky install .husky',
+      'npm run format',
+      'npm run lint',
+      'npm run typecheck',
+      'npm test -- --coverage',
     ],
   };
 }
 
 export const generateCodeTool = {
-  name: "generate_code",
-  description: "Generate guideline-compliant scaffolds for components, features, or project bootstrap",
+  name: 'generate_code',
+  description:
+    'Generate guideline-compliant scaffolds for components, features, or project bootstrap',
   inputSchema: {
-    type: "object" as const,
+    type: 'object' as const,
     properties: {
       task: {
-        type: "string",
-        enum: ["component", "feature", "bootstrap", "hook"],
-        description: "What to generate",
+        type: 'string',
+        enum: ['component', 'feature', 'bootstrap', 'hook'],
+        description: 'What to generate',
       },
       name: {
-        type: "string",
-        description: "Name of the component/feature/hook",
+        type: 'string',
+        description: 'Name of the component/feature/hook',
       },
       requirements: {
-        type: "string",
-        description: "Optional requirements or notes to incorporate",
+        type: 'string',
+        description: 'Optional requirements or notes to incorporate',
       },
       includeTests: {
-        type: "boolean",
-        description: "Include a minimal test file when applicable",
+        type: 'boolean',
+        description: 'Include a minimal test file when applicable',
       },
     },
-    required: ["task", "name"],
+    required: ['task', 'name'],
   },
 };
 
-export function handleGenerateCode(args: GenerateCodeArgs) {
+export function handleGenerateCode(args: GenerateCodeArgs): GenerateCodeResult {
   const { task, name, requirements, includeTests } = args;
 
   switch (task) {
-    case "component":
+    case 'component':
       return buildComponentScaffold(name, requirements, includeTests);
-    case "feature":
+    case 'feature':
       return buildFeatureScaffold(name, requirements);
-    case "bootstrap":
+    case 'bootstrap':
       return buildBootstrapPlan(requirements);
-    case "hook":
+    case 'hook':
       return buildFeatureScaffold(`${name}Hook`, requirements);
     default:
-      return { content: [{ type: "text", text: "Unknown task" }] };
+      return {
+        text: `Unknown task: ${String(task)}. Valid tasks: component, feature, bootstrap, hook.`,
+      };
   }
 }

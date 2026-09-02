@@ -16,7 +16,7 @@ export type ValidationRule = {
   advice: string;
 };
 
-export type ValidationCategory = "component" | "styling" | "types" | "testing" | "file-structure";
+export type ValidationCategory = 'component' | 'styling' | 'types' | 'testing' | 'file-structure';
 
 export type SearchGuidelinesArgs = {
   query: string;
@@ -27,7 +27,7 @@ export type ValidateCodePatternArgs = {
   category: ValidationCategory;
 };
 
-export type GenerationTask = "component" | "feature" | "bootstrap" | "hook";
+export type GenerationTask = 'component' | 'feature' | 'bootstrap' | 'hook';
 
 export type GenerateCodeArgs = {
   task: GenerationTask;

@@ -5,7 +5,7 @@
   "version": "1.0.0",
   "publisher": "coding-guidelines",
   "engines": {
-    "vscode": "^1.100.0"
+    "vscode": "^1.134.0"
   },
   "categories": [
     "Chat"
@@ -43,6 +43,11 @@
     "build:mcp": "node scripts/build-mcp.mjs",
     "build:extension": "tsc -p src/extension/tsconfig.json",
     "build": "npm run build:mcp && npm run build:extension",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p src/extension/tsconfig.json",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\"",
     "watch": "tsc -p src/extension/tsconfig.json --watch",
     "vscode:prepublish": "npm run build",
     "package": "vsce package --allow-missing-repository"
@@ -56,17 +61,20 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.24.3"
+    "@modelcontextprotocol/sdk": "^1.30.0"
   },
   "devDependencies": {
-    "@types/node": "^25.0.1",
-    "@types/vscode": "^1.107.0",
-    "@vscode/vsce": "^3.7.1",
-    "esbuild": "^0.27.1",
-    "eslint": "^9.39.1",
-    "prettier": "^3.7.4",
-    "typescript": "^5.9.3",
-    "typescript-eslint": "^8.18.2"
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^26.4.1",
+    "@types/vscode": "^1.134.0",
+    "@vscode/vsce": "^3.9.2",
+    "esbuild": "^0.28.2",
+    "eslint": "^10.9.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
+    "prettier": "^3.9.6",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.69.0"
   },
   "files": [
     "out",

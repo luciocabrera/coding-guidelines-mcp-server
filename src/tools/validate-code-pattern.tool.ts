@@ -3,26 +3,26 @@
  * Validates code snippets against established coding guidelines
  */
 
-import type { ValidateCodePatternArgs } from "../types.js";
-import { VALIDATION_RULES } from "../config/validation-rules.js";
+import type { ValidateCodePatternArgs } from '../types.js';
+import { VALIDATION_RULES } from '../config/validation-rules.js';
 
 export const validateCodePatternTool = {
-  name: "validate_code_pattern",
-  description: "Check if a code pattern follows the established guidelines",
+  name: 'validate_code_pattern',
+  description: 'Check if a code pattern follows the established guidelines',
   inputSchema: {
-    type: "object" as const,
+    type: 'object' as const,
     properties: {
       code: {
-        type: "string",
-        description: "Code snippet to validate",
+        type: 'string',
+        description: 'Code snippet to validate',
       },
       category: {
-        type: "string",
-        description: "Category to validate against",
-        enum: ["component", "styling", "types", "testing", "file-structure"] as const,
+        type: 'string',
+        description: 'Category to validate against',
+        enum: ['component', 'styling', 'types', 'testing', 'file-structure'] as const,
       },
     },
-    required: ["code", "category"],
+    required: ['code', 'category'],
   },
 };
 
@@ -34,8 +34,8 @@ export function handleValidateCodePattern(args: ValidateCodePatternArgs) {
     return {
       content: [
         {
-          type: "text",
-          text: `Unknown category: ${category}. Valid categories: ${Object.keys(VALIDATION_RULES).join(", ")}`,
+          type: 'text',
+          text: `Unknown category: ${category}. Valid categories: ${Object.keys(VALIDATION_RULES).join(', ')}`,
         },
       ],
     };
@@ -46,9 +46,9 @@ export function handleValidateCodePattern(args: ValidateCodePatternArgs) {
 
   let result = `**Validation for ${category}:**\n\n`;
   if (hasGoodPattern && !hasAntiPattern) {
-    result += "✅ Code follows guidelines!\n";
+    result += '✅ Code follows guidelines!\n';
   } else {
-    result += "⚠️  Issues found:\n";
+    result += '⚠️  Issues found:\n';
     if (hasAntiPattern) {
       result += `- ${rules.advice}\n`;
     }
@@ -58,6 +58,6 @@ export function handleValidateCodePattern(args: ValidateCodePatternArgs) {
   }
 
   return {
-    content: [{ type: "text", text: result }],
+    content: [{ type: 'text', text: result }],
   };
 }
