@@ -74,10 +74,10 @@ jobs:
       # than by someone discovering a stale committed .vsix months later.
       # Uploaded as a CI artifact only — nothing is published.
       - name: Package
-        run: npm run package -- --out coding-guidelines-agent.vsix
+        run: npm run package
 
       - uses: actions/upload-artifact@v5
         with:
           name: coding-guidelines-agent-vsix
-          path: coding-guidelines-agent.vsix
+          path: '*.vsix'
           if-no-files-found: error
