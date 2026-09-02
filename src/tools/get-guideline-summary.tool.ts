@@ -65,13 +65,16 @@ export async function handleGetGuidelineSummary(
       };
     }
 
-    // Find next section
-    const nextSectionIndex = lines.findIndex(
-      (line, idx) =>
-        idx > sectionStart &&
-        line.startsWith("#") &&
-        line.startsWith("#".repeat(lines[sectionStart].match(/^#+/)?.[0].length || 1))
-    );
+    // A section runs until the next header at the same or a shallower depth, so
+    // nested subsections stay part of the section that contains them.
+    const sectionLevel = lines[sectionStart]?.match(/^#+/)?.[0].length ?? 1;
+    const nextSectionIndex = lines.findIndex((line, idx) => {
+      if (idx <= sectionStart) {
+        return false;
+      }
+      const level = line.match(/^#+/)?.[0].length;
+      return level !== undefined && level <= sectionLevel;
+    });
 
     const sectionContent = lines
       .slice(sectionStart, nextSectionIndex === -1 ? undefined : nextSectionIndex)
