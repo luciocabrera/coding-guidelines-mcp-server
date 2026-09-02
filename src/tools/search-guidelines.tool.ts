@@ -3,22 +3,22 @@
  * Searches for specific patterns across all guideline documents
  */
 
-import type { SearchGuidelinesArgs, SearchResult } from "../types.js";
-import { GUIDELINES } from "../resources/index.js";
-import { searchInGuideline, formatSearchResults } from "../utils/index.js";
+import type { SearchGuidelinesArgs, SearchResult } from '../types.js';
+import { GUIDELINES } from '../resources/index.js';
+import { searchInGuideline, formatSearchResults } from '../utils/index.js';
 
 export const searchGuidelinesTool = {
-  name: "search_guidelines",
-  description: "Search for specific coding guidelines or patterns across all documents",
+  name: 'search_guidelines',
+  description: 'Search for specific coding guidelines or patterns across all documents',
   inputSchema: {
-    type: "object" as const,
+    type: 'object' as const,
     properties: {
       query: {
-        type: "string",
+        type: 'string',
         description: "Search query (e.g., 'StyleX', 'testing', 'TypeScript')",
       },
     },
-    required: ["query"],
+    required: ['query'],
   },
 };
 
@@ -36,7 +36,7 @@ export async function handleSearchGuidelines(guidelinesPath: string, args: Searc
   return {
     content: [
       {
-        type: "text",
+        type: 'text',
         text: results.length > 0 ? formatSearchResults(results) : `No results found for "${query}"`,
       },
     ],

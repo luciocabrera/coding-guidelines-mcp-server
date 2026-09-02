@@ -3,33 +3,33 @@
  * Retrieves summaries or specific sections from guideline documents
  */
 
-import type { Guideline } from "../types.js";
-import { GUIDELINES } from "../resources/index.js";
-import { readGuidelineFile } from "../utils/index.js";
+import type { Guideline } from '../types.js';
+import { GUIDELINES } from '../resources/index.js';
+import { readGuidelineFile } from '../utils/index.js';
 
 export const getGuidelineSummaryTool = {
-  name: "get_guideline_summary",
-  description: "Get a summary or specific section from a guideline document",
+  name: 'get_guideline_summary',
+  description: 'Get a summary or specific section from a guideline document',
   inputSchema: {
-    type: "object" as const,
+    type: 'object' as const,
     properties: {
       guideline: {
-        type: "string",
-        description: "Name of the guideline document",
+        type: 'string',
+        description: 'Name of the guideline document',
         enum: GUIDELINES.map((g: Guideline) => g.name),
       },
       section: {
-        type: "string",
-        description: "Optional: specific section to retrieve",
+        type: 'string',
+        description: 'Optional: specific section to retrieve',
       },
     },
-    required: ["guideline"],
+    required: ['guideline'],
   },
 };
 
 export async function handleGetGuidelineSummary(
   guidelinesPath: string,
-  args: { guideline: string; section?: string }
+  args: { guideline: string; section?: string },
 ) {
   const { guideline: guidelineName, section } = args;
 
@@ -38,8 +38,8 @@ export async function handleGetGuidelineSummary(
     return {
       content: [
         {
-          type: "text",
-          text: `Guideline not found: ${guidelineName}. Available: ${GUIDELINES.map((g: Guideline) => g.name).join(", ")}`,
+          type: 'text',
+          text: `Guideline not found: ${guidelineName}. Available: ${GUIDELINES.map((g: Guideline) => g.name).join(', ')}`,
         },
       ],
     };
@@ -49,16 +49,16 @@ export async function handleGetGuidelineSummary(
 
   if (section) {
     // Simple section extraction based on markdown headers
-    const lines = content.split("\n");
+    const lines = content.split('\n');
     const sectionStart = lines.findIndex(
-      (line) => line.toLowerCase().includes(section.toLowerCase()) && line.startsWith("#")
+      (line) => line.toLowerCase().includes(section.toLowerCase()) && line.startsWith('#'),
     );
 
     if (sectionStart === -1) {
       return {
         content: [
           {
-            type: "text",
+            type: 'text',
             text: `Section "${section}" not found in ${guidelineName}`,
           },
         ],
@@ -78,19 +78,19 @@ export async function handleGetGuidelineSummary(
 
     const sectionContent = lines
       .slice(sectionStart, nextSectionIndex === -1 ? undefined : nextSectionIndex)
-      .join("\n");
+      .join('\n');
 
     return {
-      content: [{ type: "text", text: sectionContent }],
+      content: [{ type: 'text', text: sectionContent }],
     };
   }
 
   // Return first few lines as summary
-  const summary = content.split("\n").slice(0, 20).join("\n");
+  const summary = content.split('\n').slice(0, 20).join('\n');
   return {
     content: [
       {
-        type: "text",
+        type: 'text',
         text: `**${guideline.name}**\n\n${summary}\n\n... (use section parameter to get specific sections)`,
       },
     ],
