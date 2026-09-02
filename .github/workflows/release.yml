@@ -1,0 +1,42 @@
+name: Release
+
+# Builds the extension package and attaches it to a GitHub Release when a
+# version tag is pushed. Nothing is published to the VS Code Marketplace.
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build and attach VSIX
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Verify
+        run: |
+          npm run lint
+          npm run typecheck
+          npm test
+
+      - name: Build VSIX
+        run: npm run build:vsix
+
+      - name: Attach to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: '*.vsix'
+          generate_release_notes: true
