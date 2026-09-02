@@ -288,7 +288,7 @@ export const fetch${featureName} = async () => {
 
   const extras = requirements ? `\nRequirements: ${requirements}\n` : '';
   return {
-    text: `${sharedGuidelineNotes}\n${extras}\n${base}\n${componentSnippet}\n\n${hookSnippet}\n\n${serviceSnippet}`,
+    text: `${sharedGuidelineNotes}\n${extras}\n${base}\n${componentSnippet.text}\n\n${hookSnippet}\n\n${serviceSnippet}`,
     files: undefined,
     commands: ['npm run format', 'npm run lint', 'npm run typecheck', 'npm test -- --coverage'],
   };
@@ -799,7 +799,7 @@ export const generateCodeTool = {
   },
 };
 
-export function handleGenerateCode(args: GenerateCodeArgs) {
+export function handleGenerateCode(args: GenerateCodeArgs): GenerateCodeResult {
   const { task, name, requirements, includeTests } = args;
 
   switch (task) {
@@ -812,6 +812,8 @@ export function handleGenerateCode(args: GenerateCodeArgs) {
     case 'hook':
       return buildFeatureScaffold(`${name}Hook`, requirements);
     default:
-      return { content: [{ type: 'text', text: 'Unknown task' }] };
+      return {
+        text: `Unknown task: ${String(task)}. Valid tasks: component, feature, bootstrap, hook.`,
+      };
   }
 }

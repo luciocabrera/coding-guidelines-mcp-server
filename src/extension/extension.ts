@@ -8,6 +8,17 @@ import { exec as execCb } from 'child_process';
 let mcpClient: MCPClient;
 const exec = promisify(execCb);
 
+/** The fields of a consumer's package.json this extension reads or writes. */
+type PackageJsonLike = {
+  scripts?: Record<string, string>;
+  dependencies?: Record<string, string>;
+  devDependencies?: Record<string, string>;
+};
+
+/** Render a caught value for display; `catch` bindings are `unknown`. */
+const describeError = (error: unknown): string =>
+  error instanceof Error ? error.message : String(error);
+
 export async function activate(context: vscode.ExtensionContext) {
   mcpClient = new MCPClient(context.extensionPath);
 
@@ -15,7 +26,7 @@ export async function activate(context: vscode.ExtensionContext) {
     await mcpClient.connect();
     vscode.window.showInformationMessage('Coding Guidelines Agent connected!');
   } catch (error) {
-    vscode.window.showErrorMessage(`Failed to connect to MCP server: ${error}`);
+    vscode.window.showErrorMessage(`Failed to connect to MCP server: ${describeError(error)}`);
   }
 
   const agent = vscode.chat.createChatParticipant('coding-guidelines.agent', handleChatRequest);
@@ -126,7 +137,7 @@ async function handleChatRequest(
       }
     }
   } catch (error) {
-    stream.markdown(`❌ Error: ${error}`);
+    stream.markdown(`❌ Error: ${describeError(error)}`);
   }
 
   return { metadata: { command: command || 'default' } };
@@ -172,7 +183,7 @@ function inferGenerationIntent(query?: string): { task: string; name: string } {
   if (hasHook) task = 'hook';
 
   const nameMatch = stripped.match(
-    /(?:create|build|generate|for|named|called)\s+([A-Za-z0-9 \-]+)/i,
+    /(?:create|build|generate|for|named|called)\s+([A-Za-z0-9 -]+)/i,
   );
   const rawName = nameMatch?.[1]?.trim() || stripped.trim() || 'Component';
   const name = normalizeArtifactName(rawName, stripped);
@@ -352,8 +363,8 @@ async function ensureScriptsForCommands(
   const pkgPath = join(cwd, 'package.json');
   try {
     const pkgRaw = await readFile(pkgPath, 'utf8');
-    const pkg = JSON.parse(pkgRaw);
-    const scripts = pkg.scripts || {};
+    const pkg = JSON.parse(pkgRaw) as PackageJsonLike;
+    const scripts: Record<string, string> = pkg.scripts ?? {};
     let modified = false;
 
     for (const name of scriptNames) {
@@ -381,14 +392,12 @@ async function ensureScriptsForCommands(
       await writeFile(pkgPath, JSON.stringify(pkg, null, 2) + '\n', 'utf8');
     }
   } catch (error) {
-    stream.markdown(`⚠️ Unable to ensure scripts: ${error}\n`);
+    stream.markdown(`⚠️ Unable to ensure scripts: ${describeError(error)}\n`);
   }
 }
 
 async function runPostCommands(cwd: string, commands: string[], stream: vscode.ChatResponseStream) {
   for (const cmd of commands) {
-    let attemptedRetry = false;
-
     try {
       stream.markdown(`▶️ ${cmd}\n`);
       const { stdout, stderr } = await exec(cmd, { cwd });
@@ -402,8 +411,7 @@ async function runPostCommands(cwd: string, commands: string[], stream: vscode.C
       const message = String(error);
       const isMissingScript = /Missing script/i.test(message);
 
-      if (!attemptedRetry && isMissingScript) {
-        attemptedRetry = true;
+      if (isMissingScript) {
         await ensureScriptsForCommands(cwd, [cmd], stream);
         stream.markdown(`↻ Retrying ${cmd} after adding missing script...\n`);
         try {
@@ -416,12 +424,12 @@ async function runPostCommands(cwd: string, commands: string[], stream: vscode.C
           }
           continue;
         } catch (retryError) {
-          stream.markdown(`⚠️ Command failed again: ${cmd} - ${retryError}\n`);
+          stream.markdown(`⚠️ Command failed again: ${cmd} - ${describeError(retryError)}\n`);
           break;
         }
       }
 
-      stream.markdown(`⚠️ Command failed: ${cmd} - ${error}\n`);
+      stream.markdown(`⚠️ Command failed: ${cmd} - ${describeError(error)}\n`);
       break;
     }
   }
@@ -433,9 +441,9 @@ async function ensureReactProject(cwd: string, stream: vscode.ChatResponseStream
 
   try {
     const pkgRaw = await readFile(pkgPath, 'utf8');
-    const pkg = JSON.parse(pkgRaw);
+    const pkg = JSON.parse(pkgRaw) as PackageJsonLike;
     const deps = { ...pkg.dependencies, ...pkg.devDependencies };
-    hasReact = Boolean(deps?.react || deps?.['react-dom']);
+    hasReact = Boolean(deps.react ?? deps['react-dom']);
   } catch {
     // no package or unreadable
   }

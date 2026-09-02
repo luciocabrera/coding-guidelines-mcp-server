@@ -8,6 +8,7 @@ import type { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import type {
   SearchGuidelinesArgs,
   ValidateCodePatternArgs,
+  GenerateCodeArgs,
   GenerateCodeResult,
 } from '../types.js';
 
@@ -59,7 +60,7 @@ export function registerToolHandlers(server: Server, guidelinesPath: string): vo
         );
 
       case 'generate_code': {
-        const result = handleGenerateCode(args as any) as GenerateCodeResult;
+        const result: GenerateCodeResult = handleGenerateCode(args as unknown as GenerateCodeArgs);
         // Wrap into MCP response content while keeping files/commands in the envelope
         return {
           content: [{ type: 'text', text: result.text }],

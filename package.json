@@ -43,6 +43,11 @@
     "build:mcp": "node scripts/build-mcp.mjs",
     "build:extension": "tsc -p src/extension/tsconfig.json",
     "build": "npm run build:mcp && npm run build:extension",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p src/extension/tsconfig.json",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\"",
     "watch": "tsc -p src/extension/tsconfig.json --watch",
     "vscode:prepublish": "npm run build",
     "package": "vsce package --allow-missing-repository"

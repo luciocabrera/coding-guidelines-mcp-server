@@ -30,6 +30,9 @@ export default tseslint.config(
     },
   },
   {
-    ignores: ["build/", "node_modules/", "*.js", "*.mjs"],
+    // Flat-config ignore globs are matched against the full relative path, so a
+    // bare "*.js" only ever matched the repo root. Build output and the plain
+    // JS build script live in subdirectories and were being type-linted.
+    ignores: ["build/", "out/", "guidelines/", "node_modules/", "**/*.js", "**/*.mjs"],
   }
 );

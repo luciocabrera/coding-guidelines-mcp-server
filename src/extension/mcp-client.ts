@@ -1,6 +1,16 @@
 import { spawn, ChildProcess } from 'child_process';
 import { join } from 'path';
 
+/** The subset of a JSON-RPC response this client acts on. */
+type JsonRpcResponse = {
+  id?: number | string;
+  result?: unknown;
+  error?: unknown;
+};
+
+const isJsonRpcResponse = (value: unknown): value is JsonRpcResponse =>
+  typeof value === 'object' && value !== null;
+
 export class MCPClient {
   private process: ChildProcess | null = null;
   private requestId = 0;
@@ -61,23 +71,29 @@ export class MCPClient {
     this.buffer = lines.pop() || '';
 
     for (const line of lines) {
-      if (line.trim()) {
-        try {
-          const response = JSON.parse(line);
-          if (response.id !== undefined) {
-            const pending = this.pendingRequests.get(response.id);
-            if (pending) {
-              this.pendingRequests.delete(response.id);
-              if (response.error) {
-                pending.reject(response.error);
-              } else {
-                pending.resolve(response.result);
-              }
-            }
-          }
-        } catch {
-          // Ignore parse errors
-        }
+      if (!line.trim()) {
+        continue;
+      }
+      let response: unknown;
+      try {
+        response = JSON.parse(line);
+      } catch {
+        // Not a complete JSON-RPC frame; ignore it.
+        continue;
+      }
+      if (!isJsonRpcResponse(response) || response.id === undefined) {
+        continue;
+      }
+      const id = Number(response.id);
+      const pending = this.pendingRequests.get(id);
+      if (!pending) {
+        continue;
+      }
+      this.pendingRequests.delete(id);
+      if (response.error === undefined) {
+        pending.resolve(response.result);
+      } else {
+        pending.reject(response.error);
       }
     }
   }
