@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import * as esbuild from "esbuild";
-import { chmod, writeFile } from "fs/promises";
+import { chmod, readFile, writeFile } from "fs/promises";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 
@@ -8,6 +8,9 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const rootDir = join(__dirname, "..");
 
 async function build() {
+  // Single source of truth for the version the server reports over MCP.
+  const pkg = JSON.parse(await readFile(join(rootDir, "package.json"), "utf-8"));
+
   await esbuild.build({
     entryPoints: [join(rootDir, "src/index.ts")],
     bundle: true,
@@ -15,6 +18,9 @@ async function build() {
     target: "node20",
     format: "esm",
     outfile: join(rootDir, "build/index.js"),
+    define: {
+      __SERVER_VERSION__: JSON.stringify(pkg.version),
+    },
   });
 
   // Make executable

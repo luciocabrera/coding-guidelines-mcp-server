@@ -1,18 +1,19 @@
 import { describe, expect, it } from 'vitest';
 
+import { DEFAULT_VALIDATION_RULES } from '../src/config/validation-rules.js';
 import { handleValidateCodePattern } from '../src/tools/validate-code-pattern.tool.js';
-import type { ValidationCategory } from '../src/types.js';
+import type { BuiltInValidationCategory } from '../src/types.js';
 import { textOf } from './helpers.js';
 
-const validate = (code: string, category: ValidationCategory) =>
-  textOf(handleValidateCodePattern({ code, category }));
+const validate = (code: string, category: string) =>
+  textOf(handleValidateCodePattern(DEFAULT_VALIDATION_RULES, { code, category }));
 
 const PASSING = '✅ Code follows guidelines!';
 const FAILING = '⚠️  Issues found:';
 
 /** One conforming and one violating snippet for every category the tool ships with. */
 const CASES: ReadonlyArray<{
-  category: ValidationCategory;
+  category: BuiltInValidationCategory;
   good: string;
   bad: string;
   adviceFragment: string;
@@ -74,7 +75,7 @@ describe('validate_code_pattern', () => {
   });
 
   it('rejects an unknown category and lists the valid ones', () => {
-    const result = validate('const a = 1;', 'not-a-category' as ValidationCategory);
+    const result = validate('const a = 1;', 'not-a-category');
 
     expect(result).toContain('Unknown category: not-a-category');
     expect(result).toContain('component');

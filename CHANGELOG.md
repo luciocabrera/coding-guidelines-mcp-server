@@ -5,6 +5,10 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+Nothing yet.
+
 ## [2.0.0] - 2026-09-02
 
 The showcase polish pass.
@@ -27,9 +31,16 @@ is unchanged: same resource URIs, same tool names and schemas.
   MCP integration needs 1.102+ regardless.
 - **The committed `.vsix` files are removed.** Build with `npm run build:vsix`,
   or take the artifact attached to a tagged release.
+- **`ValidationCategory` is removed from the public types.** A validated
+  category is a plain `string` at the tool boundary now, checked at runtime.
+  `BuiltInValidationCategory` names the five shipped categories and still types
+  `DEFAULT_VALIDATION_RULES` exhaustively. `VALIDATION_RULES` was renamed to
+  `DEFAULT_VALIDATION_RULES`.
 - **Internal handler signatures changed.** `handleSearchGuidelines` and
   `handleGetGuidelineSummary` take the loaded guideline set as their second
-  argument, and `getGuidelineSummaryTool` became `createGetGuidelineSummaryTool`.
+  argument, `handleValidateCodePattern` takes the loaded rules, and the
+  `getGuidelineSummaryTool` / `validateCodePatternTool` constants became
+  `createGetGuidelineSummaryTool` / `createValidateCodePatternTool`.
   This affects anyone importing these modules directly; it does not affect MCP
   clients.
 
@@ -43,9 +54,23 @@ is unchanged: same resource URIs, same tool names and schemas.
   artifact.
 - `guidelines.config.json` manifests — the served guideline set is now
   configuration. `GUIDELINES_PATH` points at any self-describing directory.
-- `TEMPLATE.md`: how to point the server at your own standards.
-- ADRs: [resources vs tools](docs/adr/0001-mcp-resources-vs-tools.md) and
-  [guidelines as configuration](docs/adr/0002-guidelines-as-configuration.md).
+- Duplicate guideline `name`s are rejected. `get_guideline_summary` keys off
+  name and publishes the list as its input schema enum, so duplicates made the
+  tool's contract ambiguous.
+- The server version reported over MCP is injected from `package.json` at build
+  time, so the two cannot drift.
+- **Configurable validation categories.** A manifest's optional `categories`
+  block merges over the built-in rules, so a fork can add its own taxonomy — or
+  override a shipped category by name — without editing `src/`. Merging rather
+  than replacing keeps `validate_code_pattern`'s advertised enum stable for
+  clients already prompting against the shipped categories. Patterns are
+  compiled at startup; an invalid regex fails with the category, field and
+  pattern named.
+- `TEMPLATE.md`: how to point the server at your own standards, including
+  defining your own validation categories.
+- ADRs: [resources vs tools](docs/adr/0001-mcp-resources-vs-tools.md),
+  [guidelines as configuration](docs/adr/0002-guidelines-as-configuration.md)
+  and [configurable validation categories](docs/adr/0003-configurable-validation-categories.md).
 - `docs/demo.svg`, recorded from a live server session via `npm run demo`.
 - README: architecture diagram, dated compatibility table, project layout.
 - Scripts: `test`, `test:watch`, `lint`, `lint:fix`, `typecheck`, `format`,
@@ -66,6 +91,17 @@ is unchanged: same resource URIs, same tool names and schemas.
 
 ### Fixed
 
+- **The VS Code chat agent never performed the MCP `initialize` handshake.**
+  `MCPClient.connect()` resolved on the server's stderr banner, or on a 1s
+  timeout that resolved rather than rejected, without initializing the session.
+  The SDK will not answer `resources/*` or `tools/*` before initialize, so the
+  extension reported itself connected while every subsequent request failed.
+  It now completes the handshake before resolving, and a failed start rejects.
+- **A manifest `file` could escape the guidelines directory.** `../` and
+  absolute paths were accepted verbatim and joined with the guidelines path,
+  making `resources/read` an arbitrary-file-read primitive for anyone who could
+  get a manifest adopted. Paths are now required to resolve inside the
+  directory.
 - **`generate_code` emitted `[object Object]`.** `buildFeatureScaffold`
   interpolated a result object instead of its `.text` into every feature
   scaffold response.
@@ -86,17 +122,11 @@ is unchanged: same resource URIs, same tool names and schemas.
 - Node no longer prints `MODULE_TYPELESS_PACKAGE_JSON` onto the stderr channel
   MCP clients read.
 
-### Still open
-
-- **Whether `validate_code_pattern`'s categories become configuration.** They
-  remain compiled into `src/config/validation-rules.ts`. Moving them would
-  change the tool's declared `inputSchema.enum`, which is a client-facing
-  contract. See [ADR 0002](docs/adr/0002-guidelines-as-configuration.md).
-
 ## [1.0.0]
 
 Initial release: MCP server exposing five guideline documents as resources with
 search, summary, validation and generation tools, plus a VS Code chat agent.
 
+[unreleased]: https://github.com/luciocabrera/coding-guidelines-mcp-server/compare/v2.0.0...HEAD
 [2.0.0]: https://github.com/luciocabrera/coding-guidelines-mcp-server/releases/tag/v2.0.0
 [1.0.0]: https://github.com/luciocabrera/coding-guidelines-mcp-server/releases/tag/v1.0.0

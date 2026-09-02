@@ -16,7 +16,16 @@ export type ValidationRule = {
   advice: string;
 };
 
-export type ValidationCategory = 'component' | 'styling' | 'types' | 'testing' | 'file-structure';
+/**
+ * The categories this server ships with. A guidelines manifest may add its own
+ * or override these, so a validated category is a plain string at runtime —
+ * this union names the built-in defaults and keeps them exhaustively checked.
+ */
+export type BuiltInValidationCategory =
+  'component' | 'styling' | 'types' | 'testing' | 'file-structure';
+
+/** Category name -> rule. Keys are open: the manifest may contribute more. */
+export type ValidationRules = Record<string, ValidationRule>;
 
 export type SearchGuidelinesArgs = {
   query: string;
@@ -24,7 +33,7 @@ export type SearchGuidelinesArgs = {
 
 export type ValidateCodePatternArgs = {
   code: string;
-  category: ValidationCategory;
+  category: string;
 };
 
 export type GenerationTask = 'component' | 'feature' | 'bootstrap' | 'hook';

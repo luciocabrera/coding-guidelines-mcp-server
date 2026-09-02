@@ -1,11 +1,15 @@
 /**
- * Validation Rules Configuration
- * Defines validation patterns and rules for different code categories
+ * Default Validation Rules
+ *
+ * The categories this server ships with, encoding React/TypeScript/StyleX
+ * opinions. A guidelines manifest can add categories or override any of these
+ * by name — see the `categories` block in guidelines.config.json — so a fork
+ * with a different taxonomy does not have to edit this file.
  */
 
-import type { ValidationRule, ValidationCategory } from '../types.js';
+import type { ValidationRule, BuiltInValidationCategory } from '../types.js';
 
-export const VALIDATION_RULES: Record<ValidationCategory, ValidationRule> = {
+export const DEFAULT_VALIDATION_RULES: Record<BuiltInValidationCategory, ValidationRule> = {
   component: {
     patterns: [/const\s+\w+\s*=\s*\(/],
     antiPatterns: [/React\.FC/, /function\s+\w+\(/],

@@ -254,6 +254,53 @@ describe('swapping in a different guideline set', () => {
     ]);
   });
 
+  it("advertises the manifest's own validation categories", async () => {
+    const response = await server.send('tools/list');
+
+    const tools = response.result?.tools as Array<{
+      name: string;
+      inputSchema: { properties: { category?: { enum: string[] } } };
+    }>;
+    const validateTool = tools.find((t) => t.name === 'validate_code_pattern');
+    const categories = validateTool?.inputSchema.properties.category?.enum ?? [];
+
+    // The fixture's own taxonomy is offered to clients...
+    expect(categories).toContain('docstrings');
+    expect(categories).toContain('type-hints');
+    // ...alongside the built-ins, so an existing prompt keeps working.
+    expect(categories).toContain('component');
+  });
+
+  it('validates against a category defined only in the manifest', async () => {
+    const good = await server.send('tools/call', {
+      name: 'validate_code_pattern',
+      arguments: { code: 'def total(items: list) -> int:', category: 'type-hints' },
+    });
+    const bad = await server.send('tools/call', {
+      name: 'validate_code_pattern',
+      arguments: { code: 'def total(items)', category: 'type-hints' },
+    });
+
+    expect((good.result?.content as Array<{ text: string }>)[0]?.text).toContain(
+      'Code follows guidelines!',
+    );
+    const badText = (bad.result?.content as Array<{ text: string }>)[0]?.text;
+    expect(badText).toContain('Issues found');
+    expect(badText).toContain('Annotate parameters and return types.');
+  });
+
+  it('applies a manifest override of a built-in category', async () => {
+    const response = await server.send('tools/call', {
+      name: 'validate_code_pattern',
+      arguments: { code: 'x: Dict[str, Any] = {}', category: 'types' },
+    });
+
+    // Default 'types' advice is about type-vs-interface; this manifest replaces it.
+    const text = (response.result?.content as Array<{ text: string }>)[0]?.text;
+    expect(text).toContain('Prefer TypedDict or dataclass over untyped dicts.');
+    expect(text).not.toContain('interface');
+  });
+
   it('searches the alternate set', async () => {
     const response = await server.send('tools/call', {
       name: 'search_guidelines',

@@ -46,8 +46,10 @@ Three things to notice:
    directory decides which documents exist and what URIs they answer to. `src/`
    never names a document —
    [ADR 0002](docs/adr/0002-guidelines-as-configuration.md).
-3. **Only `validate_code_pattern` holds opinions in code**, as regex
-   pattern/anti-pattern pairs in `src/config/validation-rules.ts`.
+3. **Validation categories are configurable too.** The five shipped
+   categories live in `src/config/validation-rules.ts`, and a manifest's
+   `categories` block merges over them — add your own taxonomy without
+   losing the built-ins ([ADR 0003](docs/adr/0003-configurable-validation-categories.md)).
 
 ## Use this as a template
 
@@ -104,7 +106,7 @@ printf '%s\n%s\n%s\n' \
   | node build/index.js
 ```
 
-Swap the last line for any other request:
+Swap the third line for any other request — the two handshake lines above it are always needed:
 
 ```bash
 # Read a guideline
@@ -221,7 +223,7 @@ npm run demo        # re-record docs/demo.svg from a live run
 npm run package     # build the .vsix
 ```
 
-Every one of these runs in CI on each pull request, across Node 20 and 22.
+Lint, format, typecheck, build and test run in CI on each pull request, across Node 20 and 22, and the `.vsix` is built there too. `npm run demo` is run by hand when the protocol surface changes.
 
 ## Project layout
 

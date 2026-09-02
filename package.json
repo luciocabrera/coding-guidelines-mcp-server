@@ -62,7 +62,7 @@
     "watch": "tsc -p src/extension/tsconfig.json --watch",
     "vscode:prepublish": "npm run build",
     "build:vsix": "npm run build && vsce package --readme-path docs/extension-readme.md",
-    "package": "npm run build:vsix"
+    "package": "npm run build:vsix --"
   },
   "keywords": [
     "chat",

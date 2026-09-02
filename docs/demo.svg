@@ -17,7 +17,7 @@
   <circle cx="60" cy="17" r="6" fill="#28c840"/>
   <text x="82" y="21" class="title">coding-guidelines-mcp-server — live session</text>
   <g>
-    <text x="22" y="70" class="dim">Coding Guidelines MCP Server running on stdio (5 guidelines from ./guidelines)</text>
+    <text x="22" y="70" class="dim">Coding Guidelines MCP Server running on stdio (5 guidelines, 5 validation categories, from ./guidelines)</text>
     <text x="22" y="110" class="prompt">$ npx @modelcontextprotocol/inspector node build/index.js</text>
     <text x="22" y="130" class="dim"># ...or drive it directly over stdio:</text>
     <text x="22" y="170" class="prompt">&gt; resources/list</text>

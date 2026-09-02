@@ -10,13 +10,14 @@ import type {
   Guideline,
   SearchGuidelinesArgs,
   ValidateCodePatternArgs,
+  ValidationRules,
   GenerateCodeArgs,
   GenerateCodeResult,
 } from '../types.js';
 
 import { searchGuidelinesTool, handleSearchGuidelines } from './search-guidelines.tool.js';
 import {
-  validateCodePatternTool,
+  createValidateCodePatternTool,
   handleValidateCodePattern,
 } from './validate-code-pattern.tool.js';
 import {
@@ -30,9 +31,9 @@ import { generateCodeTool, handleGenerateCode } from './generate-code.tool.js';
  * enumerates the loaded document names in its schema, so the list depends on
  * the manifest rather than being a module-level constant.
  */
-export const buildTools = (guidelines: readonly Guideline[]) => [
+export const buildTools = (guidelines: readonly Guideline[], rules: ValidationRules) => [
   searchGuidelinesTool,
-  validateCodePatternTool,
+  createValidateCodePatternTool(rules),
   createGetGuidelineSummaryTool(guidelines),
   generateCodeTool,
 ];
@@ -44,8 +45,9 @@ export function registerToolHandlers(
   server: Server,
   guidelinesPath: string,
   guidelines: readonly Guideline[],
+  validationRules: ValidationRules,
 ): void {
-  const tools = buildTools(guidelines);
+  const tools = buildTools(guidelines, validationRules);
 
   // List available tools
   server.setRequestHandler(ListToolsRequestSchema, () => {
@@ -65,7 +67,7 @@ export function registerToolHandlers(
         );
 
       case 'validate_code_pattern':
-        return handleValidateCodePattern(args as ValidateCodePatternArgs);
+        return handleValidateCodePattern(validationRules, args as ValidateCodePatternArgs);
 
       case 'get_guideline_summary':
         return await handleGetGuidelineSummary(
