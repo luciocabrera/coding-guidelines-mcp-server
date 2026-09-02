@@ -5,10 +5,33 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [2.0.0] - 2026-09-02
 
-The showcase polish pass. Version is still `1.0.0`; see _Release decisions
-pending_ below.
+The showcase polish pass.
+
+Major rather than minor because a guidelines directory must now contain a
+manifest — which breaks any existing `GUIDELINES_PATH` pointing at a bare folder
+of Markdown — and because the VS Code floor moves. The MCP wire contract itself
+is unchanged: same resource URIs, same tool names and schemas.
+
+### Breaking
+
+- **A guidelines directory must contain `guidelines.config.json`.** Previously
+  the served documents were compiled into the binary, so any directory holding
+  the five expected filenames worked. The manifest is now required and its
+  absence is a startup error. Existing guideline sets need one added; see
+  [TEMPLATE.md](TEMPLATE.md).
+- **`engines.vscode` raised from `^1.100.0` to `^1.134.0`**, dropping VS Code
+  older than 1.134 for the extension. `vsce` refuses to package when
+  `@types/vscode` is newer than the declared engine, and the documented Copilot
+  MCP integration needs 1.102+ regardless.
+- **The committed `.vsix` files are removed.** Build with `npm run build:vsix`,
+  or take the artifact attached to a tagged release.
+- **Internal handler signatures changed.** `handleSearchGuidelines` and
+  `handleGetGuidelineSummary` take the loaded guideline set as their second
+  argument, and `getGuidelineSummaryTool` became `createGetGuidelineSummaryTool`.
+  This affects anyone importing these modules directly; it does not affect MCP
+  clients.
 
 ### Added
 
@@ -63,15 +86,17 @@ pending_ below.
 - Node no longer prints `MODULE_TYPELESS_PACKAGE_JSON` onto the stderr channel
   MCP clients read.
 
-### Release decisions pending
+### Still open
 
-Two items need a maintainer's call and are deliberately not decided here:
+- **Whether `validate_code_pattern`'s categories become configuration.** They
+  remain compiled into `src/config/validation-rules.ts`. Moving them would
+  change the tool's declared `inputSchema.enum`, which is a client-facing
+  contract. See [ADR 0002](docs/adr/0002-guidelines-as-configuration.md).
 
-- **Version and tag.** This pass changes `engines.vscode` (a compatibility
-  narrowing) and internal function signatures, though the MCP wire contract is
-  untouched. `1.1.0` is the natural next version; `2.0.0` if the VS Code floor
-  is considered breaking for extension consumers.
-- **Whether `validate_code_pattern`'s categories become configuration.** See
-  ADR 0002.
+## [1.0.0]
 
-[Unreleased]: https://github.com/luciocabrera/coding-guidelines-mcp-server/compare/main...HEAD
+Initial release: MCP server exposing five guideline documents as resources with
+search, summary, validation and generation tools, plus a VS Code chat agent.
+
+[2.0.0]: https://github.com/luciocabrera/coding-guidelines-mcp-server/releases/tag/v2.0.0
+[1.0.0]: https://github.com/luciocabrera/coding-guidelines-mcp-server/releases/tag/v1.0.0

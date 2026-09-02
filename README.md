@@ -167,7 +167,7 @@ Build the package, then install it:
 
 ```bash
 npm run build:vsix
-code --install-extension coding-guidelines-agent-1.0.0.vsix
+code --install-extension coding-guidelines-agent-2.0.0.vsix
 ```
 
 The `.vsix` is not committed to the repository — it is built from source, and CI
