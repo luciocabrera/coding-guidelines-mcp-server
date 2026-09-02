@@ -9,6 +9,57 @@ The repository ships two things built from the same source:
 | **MCP server**         | A stdio MCP server, usable from any MCP client                                | `build/index.js`   |
 | **VS Code chat agent** | A chat participant (`@guidelines`) that runs the server above as a subprocess | `out/extension.js` |
 
+## See it running
+
+Captured from a real session against the built server — regenerate with
+`npm run demo`, which drives the server and rewrites this image from whatever it
+actually replies.
+
+![Terminal session: listing guideline resources, reading one, and validating a snippet](docs/demo.svg)
+
+## Architecture
+
+```
+MCP client                       this server                    your content
+(Copilot, Claude Desktop, CLI)
+        │
+        │  resources/list ──────▶ manifest ─────────────────────▶ guidelines.config.json
+        │  resources/read ──────▶ read file by uri ─────────────▶ frontend-standards.md
+        │                                                          api-conventions.md
+        │  tools/list     ──────▶ buildTools(guidelines)              ...
+        │  tools/call     ──┬───▶ search_guidelines ─────────────▶ (grep across all docs)
+        │                   ├───▶ get_guideline_summary ─────────▶ (one doc, or one section)
+        │                   ├───▶ validate_code_pattern ────────▶ validation-rules.ts
+        │                   └───▶ generate_code ────────────────▶ scaffold templates
+        ▼
+   stdio, JSON-RPC
+```
+
+Three things to notice:
+
+1. **Documents are resources; actions are tools.** Reading a standards document
+   is an addressable, side-effect-free retrieval the _user_ chooses. Validating a
+   snippet is a computation the _model_ invokes with an argument. Those are
+   different MCP surfaces, on purpose —
+   [ADR 0001](docs/adr/0001-mcp-resources-vs-tools.md).
+2. **The guideline set is data.** `guidelines.config.json` in the guidelines
+   directory decides which documents exist and what URIs they answer to. `src/`
+   never names a document —
+   [ADR 0002](docs/adr/0002-guidelines-as-configuration.md).
+3. **Only `validate_code_pattern` holds opinions in code**, as regex
+   pattern/anti-pattern pairs in `src/config/validation-rules.ts`.
+
+## Use this as a template
+
+Point it at your own standards in about five minutes — replace the Markdown in
+`guidelines/`, describe it in `guidelines.config.json`, rebuild. No TypeScript.
+
+**→ [TEMPLATE.md](TEMPLATE.md)**
+
+That claim is tested rather than asserted: the integration suite boots the real
+server against a second guideline set (`tests/fixtures/alt-guidelines/`, with
+different URIs, filenames and document count) and checks it serves that set.
+
 ## Features
 
 **Resources** — each guideline document, addressable by URI:
@@ -130,10 +181,29 @@ Sources: [MCP support in VS Code is generally available](https://github.blog/cha
 ```bash
 npm run build       # build both the MCP server and the extension
 npm run watch       # watch mode for the extension
+npm test            # vitest: unit + a live stdio integration suite
 npm run lint        # eslint
 npm run typecheck   # tsc --noEmit over both projects
 npm run format      # prettier
+npm run demo        # re-record docs/demo.svg from a live run
+npm run package     # build the .vsix
 ```
+
+Every one of these runs in CI on each pull request, across Node 20 and 22.
+
+## Project layout
+
+| Path                                | What lives there                                               |
+| ----------------------------------- | -------------------------------------------------------------- |
+| `src/index.ts`                      | Server entry point: loads the manifest, registers handlers     |
+| `src/config/guidelines-manifest.ts` | Manifest loading and validation                                |
+| `src/config/validation-rules.ts`    | The regex rules behind `validate_code_pattern`                 |
+| `src/resources/`                    | Resource handlers (`resources/list`, `resources/read`)         |
+| `src/tools/`                        | One module per tool, plus dispatch                             |
+| `src/extension/`                    | The VS Code chat participant                                   |
+| `guidelines/`                       | The documents served, and the manifest describing them         |
+| `tests/`                            | Unit suites, a stdio integration suite, and guideline fixtures |
+| `docs/adr/`                         | Architecture decision records                                  |
 
 ## License
 
