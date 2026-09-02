@@ -1,10 +1,15 @@
 import { describe, expect, it } from 'vitest';
 
 import { handleGetGuidelineSummary } from '../src/tools/get-guideline-summary.tool.js';
+import { loadGuidelines } from '../src/config/guidelines-manifest.js';
 import { FIXTURE_GUIDELINES_PATH, textOf } from './helpers.js';
 
+const guidelines = await loadGuidelines(FIXTURE_GUIDELINES_PATH);
+
 const summary = async (guideline: string, section?: string) =>
-  textOf(await handleGetGuidelineSummary(FIXTURE_GUIDELINES_PATH, { guideline, section }));
+  textOf(
+    await handleGetGuidelineSummary(FIXTURE_GUIDELINES_PATH, guidelines, { guideline, section }),
+  );
 
 describe('get_guideline_summary', () => {
   it('returns the opening of a document when no section is given', async () => {
@@ -49,7 +54,9 @@ describe('get_guideline_summary', () => {
 
   it('rejects a guideline whose file is missing from the guidelines path', async () => {
     await expect(
-      handleGetGuidelineSummary('/nonexistent/guidelines/path', { guideline: 'Testing Guide' }),
+      handleGetGuidelineSummary('/nonexistent/guidelines/path', guidelines, {
+        guideline: 'Testing Guide',
+      }),
     ).rejects.toThrow(/Failed to read guideline file/);
   });
 });
