@@ -23,6 +23,7 @@ class ServerHarness {
   private buffer = '';
   private readonly pending = new Map<number, (value: JsonRpcResponse) => void>();
   private nextId = 0;
+  readonly unparsed: string[] = [];
 
   constructor() {
     this.child = spawn('node', [SERVER_PATH], {
@@ -37,7 +38,16 @@ class ServerHarness {
       this.buffer = lines.pop() ?? '';
       for (const line of lines) {
         if (!line.trim()) continue;
-        const message = JSON.parse(line) as JsonRpcResponse;
+        let message: JsonRpcResponse;
+        try {
+          message = JSON.parse(line) as JsonRpcResponse;
+        } catch {
+          // A non-JSON line on stdout is a server bug, not a harness one. Record it
+          // so a test can assert on it, rather than throwing inside a 'data' handler
+          // where it would take down the whole run with an opaque stack.
+          this.unparsed.push(line);
+          continue;
+        }
         this.pending.get(message.id)?.(message);
         this.pending.delete(message.id);
       }
@@ -47,7 +57,10 @@ class ServerHarness {
   send(method: string, params?: Record<string, unknown>): Promise<JsonRpcResponse> {
     const id = this.nextId++;
     return new Promise((resolve, reject) => {
-      const timer = setTimeout(() => reject(new Error(`timed out waiting for ${method}`)), 10_000);
+      const timer = setTimeout(() => {
+        this.pending.delete(id);
+        reject(new Error(`timed out waiting for ${method}`));
+      }, 10_000);
       this.pending.set(id, (message) => {
         clearTimeout(timer);
         resolve(message);
@@ -159,6 +172,11 @@ describe('MCP server over stdio', () => {
 
     const content = response.result?.content as Array<{ text: string }>;
     expect(content[0]?.text).toContain('Code follows guidelines!');
+  });
+
+  it('writes nothing but JSON-RPC frames to stdout', () => {
+    // stdout is the protocol channel; anything else corrupts a real client's stream.
+    expect(server.unparsed).toEqual([]);
   });
 
   it('returns an error for an unknown tool', async () => {
