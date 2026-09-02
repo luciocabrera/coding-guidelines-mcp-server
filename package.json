@@ -4,6 +4,14 @@
   "description": "VS Code Chat Agent with MCP server for coding guidelines",
   "version": "1.0.0",
   "publisher": "coding-guidelines",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/luciocabrera/coding-guidelines-mcp-server.git"
+  },
+  "bugs": {
+    "url": "https://github.com/luciocabrera/coding-guidelines-mcp-server/issues"
+  },
+  "homepage": "https://github.com/luciocabrera/coding-guidelines-mcp-server#readme",
   "engines": {
     "vscode": "^1.134.0"
   },
@@ -50,9 +58,10 @@
     "format:check": "prettier --check \"**/*.{ts,mts,md,json,yml}\"",
     "test": "npm run build:mcp && vitest run",
     "test:watch": "vitest",
+    "demo": "npm run build:mcp && node scripts/record-demo.mjs",
     "watch": "tsc -p src/extension/tsconfig.json --watch",
     "vscode:prepublish": "npm run build",
-    "package": "vsce package --allow-missing-repository"
+    "package": "vsce package --readme-path docs/extension-readme.md"
   },
   "keywords": [
     "chat",

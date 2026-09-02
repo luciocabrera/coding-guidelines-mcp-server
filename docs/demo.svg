@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="658" viewBox="0 0 900 658" role="img" aria-label="Terminal session showing the MCP server listing resources and answering tool calls">
+  <style>
+    .bg { fill: #11141a; }
+    .chrome { fill: #1b1f27; }
+    text { font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace; font-size: 13px; white-space: pre; }
+    .prompt { fill: #7ee787; }
+    .out { fill: #c9d1d9; }
+    .dim { fill: #6e7681; }
+    .plain { fill: #c9d1d9; }
+    .title { fill: #8b949e; font-size: 12px; }
+  </style>
+  <rect class="bg" width="900" height="658" rx="10"/>
+  <rect class="chrome" width="900" height="34" rx="10"/>
+  <rect class="chrome" y="24" width="900" height="10"/>
+  <circle cx="20" cy="17" r="6" fill="#ff5f57"/>
+  <circle cx="40" cy="17" r="6" fill="#febc2e"/>
+  <circle cx="60" cy="17" r="6" fill="#28c840"/>
+  <text x="82" y="21" class="title">coding-guidelines-mcp-server — live session</text>
+  <g>
+    <text x="22" y="70" class="dim">Coding Guidelines MCP Server running on stdio (5 guidelines from ./guidelines)</text>
+    <text x="22" y="110" class="prompt">$ npx @modelcontextprotocol/inspector node build/index.js</text>
+    <text x="22" y="130" class="dim"># ...or drive it directly over stdio:</text>
+    <text x="22" y="170" class="prompt">&gt; resources/list</text>
+    <text x="22" y="190" class="out">  guidelines://coding-guidelines  —  Coding Guidelines</text>
+    <text x="22" y="210" class="out">  guidelines://enterprise-standards  —  Enterprise Coding Standards</text>
+    <text x="22" y="230" class="out">  guidelines://testing-guide  —  Testing Guide</text>
+    <text x="22" y="250" class="out">  guidelines://e2e-testing  —  E2E Testing Guide</text>
+    <text x="22" y="270" class="out">  guidelines://complete-setup  —  Complete Setup Guide</text>
+    <text x="22" y="310" class="prompt">&gt; resources/read  guidelines://testing-guide</text>
+    <text x="22" y="330" class="out">  # Testing Standards &amp; Best Practices</text>
+    <text x="22" y="350" class="out">  </text>
+    <text x="22" y="370" class="out">  Comprehensive guide for writing tests that align with our enterprise coding standards.</text>
+    <text x="22" y="410" class="prompt">&gt; tools/call  validate_code_pattern  category='component'</text>
+    <text x="22" y="430" class="out">  **Validation for component:**</text>
+    <text x="22" y="450" class="out">  ⚠️  Issues found:</text>
+    <text x="22" y="470" class="out">  - Components should use const arrow functions, not React.FC or function declarations</text>
+    <text x="22" y="490" class="out">  - Missing recommended patterns for component</text>
+    <text x="22" y="530" class="prompt">&gt; tools/call  search_guidelines  query='StyleX'</text>
+    <text x="22" y="550" class="out">  Found results in 3 documents:</text>
+    <text x="22" y="570" class="out">  **Coding Guidelines** (coding-guidelines.md):</text>
+    <text x="22" y="590" class="out">  Line 5: # 🚀 Engineering Standards Document (React/StyleX/TS)</text>
+    <text x="22" y="610" class="out">  Line 7: This document establishes the mandatory guidelines for writing modern, scalable, and maintainable applications using **React 19, StyleX, TypeScript, and React Router 7**.</text>
+  </g>
+</svg>
